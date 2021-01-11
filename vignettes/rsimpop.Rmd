@@ -1,0 +1,194 @@
+---
+title: "Introduction to rsimpop"
+output: rmarkdown::html_vignette
+description: >
+  Introduction to how to simulate cell populations using rsimpop
+vignette: >
+  %\VignetteIndexEntry{Introduction to rsimpop}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("rsimpop")
+```
+---
+date: `r format(Sys.Date(), "%d/%m/%Y")`
+---
+## rsimpop
+This package facilitates the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
+
+
+### TODO
+
+Setting parameters is somewhat convoluted in this early version.  The next step will be to wrap up the parameter setting in and S3 R class RSimpopParam.
+
+
+## Simulate from Zygote for 1 year and subsample tree
+```{r zygote,results=TRUE, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+
+##Initialise with seed (R and rsimpop separately)
+SEED=37774321
+initSimPop(SEED,bForce = TRUE)
+##Setup a single compartment with a target pop of 50K
+cfg=getDefaultConfig(target_pop_size  = 5e4,ndriver = 1,basefit = 0.2,rate = 0.1)
+print(cfg)
+##Simulate for 2years..
+sp=sim_pop(NULL,params=list(n_sim_days=365*2,b_stop_at_pop_size=1),cfg=cfg)
+##Look at the population size trajectory
+plot(sp)
+fulltree1=get_tree_from_simpop(sp)
+##Subsample tree
+sampledtree1=get_subsampled_tree(fulltree1,100)
+print(sampledtree1)
+plot_tree(sampledtree1,cex.label = 0.5)
+title("Sampled Zygote Tree: Division Tree")
+```
+
+Notice how the sampled tree has 101 tips rather than the specified 100.  This is because the simulator now always maintains an inactive outgroup (here s1). A group is rendered inactive by specifying a negative "rate" in the cfg$compartment dataframe.  The tree branch lengths are now given in terms of the number of self renewal divisions.  This allows the user to flexibly apply their own mutation acquisition model:
+
+```{r mutacq}
+get_elapsed_time_tree
+sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
+plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
+```
+
+Actually this illustrates a potential problem with the outgroup sample still having a acquired mutations because it has a finite duration (0 to 365 days)..
+
+The changes between compartments is specified in a separate dataframe tree$events that is maintained and updated by the simulator.   
+
+```{r events, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+t1=plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
+node_labels(t1,cex=0.5)
+print(sampledtree1m$events)
+```
+
+Notice how the events dataframe specifies the compartment for the outgroup and the rest of the tree.
+
+We can introduce another cell compartment as follows:
+
+```{r newcompartment,message=TRUE}
+cfg=sampledtree1$cfg
+cfg=addCellCompartment(cfg,population = 5e4,rate=1/50,ndriver=1,descr="MyTissue",basefit = 0.3)
+cfg$compartment$rate[2]=1/120  ## change the rate of compartment 1
+sampledtree1a=addDifferentiationEvents(sampledtree1,cfg,2,nEvent=10)
+print(sampledtree1a$events)
+```
+
+Each branch carries its final state...
+```{r plotcompartment, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+sampledtree1a$color = c("grey","black","red")[sampledtree1a$state+1]
+plot_tree(sampledtree1a,cex.label = 0.5);title("Highlights branches with compartment changes")
+```
+Alternatively can visualise using the built in function *plot_tree_events*
+```{r plotc2, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+plot_tree_events(sampledtree1a)
+```
+
+
+We've already updated the config with the target population sizes and division rates, so we're ready to simulate:
+```{r simagain,message=TRUE, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+sp2=sim_pop(sampledtree1a,params=list(n_sim_days=365*10),cfg=sampledtree1a$cfg)
+sp2=combine_simpops(sp,sp2)
+plot(sp2)
+fulltree2=get_tree_from_simpop(sp2)
+sampledtree2=get_subsampled_tree(fulltree2,100)
+plot_tree_events(sampledtree2,cex.label = 0.5)
+```
+
+
+## Selection based simulation
+Here we are interested in the simple situation of one cellular compartment with multiple sub-compartments.
+
+```{r selection,error=TRUE,echo=TRUE, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+run_selection_sim
+selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
+print(selsim$cfg$info)
+```
+
+Plot a sampled tree
+```{r seltree, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+seltree=get_tree_from_simpop(selsim)
+seltree100=get_subsampled_tree(seltree,100)
+print(seltree100$cfg$info)
+plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
+seltree100rt=get_elapsed_time_tree(seltree100)
+tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: Branch Length=#Real Time")
+mp=5
+seltree100m=get_elapsed_time_tree(seltree100,mutrateperdivision=mp,backgroundrate=(20-(365/190)*mp)/365)
+plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations")
+seltree100m2=get_elapsed_time_tree(seltree100,mutrateperdivision=20*(190/365),backgroundrate=0)
+plot_tree_events(seltree100m2,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations v2")
+```
+
+## Transient selection
+
+```{r selectiont,error=TRUE,echo=TRUE, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+run_transient_selection
+tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
+                                  nyears_transient_end=30,
+                                  nyears=50,
+                                  fitness=0.5)
+tseltree200=get_subsampled_tree(seltree,200)
+plot_tree_events(get_elapsed_time_tree(tseltree200),cex.label=0)
+```
+
+
+## Neutral simulation with a trajectory
+
+Create a trajectory dataframe with 3 columns (ts,target_pop_size,division_rate) and simulate using the run_neutral_trajectory wrapper function. Note that timestamps and rates are expressed in units of days and expected divisions per day respectively.
+```{r neutwithtraj, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+trajectory=data.frame(ts=365*(1:80),target_pop_size=5e4+100*(1:80),division_rate=1/(2*190))
+trajectory$target_pop_size[5:10]=2*trajectory$target_pop_size[5:10]
+trajectory$target_pop_size[11:15]=0.2*trajectory$target_pop_size[11:15]
+print(head(trajectory))
+sp=run_neutral_trajectory(NULL,0.5,trajectory)
+plot(sp,xlim=c(0,100))
+lines(trajectory$ts/365,trajectory$target_pop_size,col="red")
+legend("topright",c("Target","Actual"),col=c("red","black"),lwd=1)
+fulltree=get_tree_from_simpop(sp)
+st=get_subsampled_tree(fulltree,100)
+plot_tree(get_elapsed_time_tree(st),cex.label = 0)
+```
+
+
+## Multiple drivers
+
+Multiple drivers can be generated at a specified rate so the waiting time between events is exponentially distributed.
+
+Firstly the user need to create a function that draws a selection coefficient from a distibution. The simulator isn't optimised to maintain 100s of variants at once - so it is suggested that a minumum selective coefficient be specified (say 0.05) and driver incidence made correspondingly rarer.
+```{r}
+fitnessGen=function(){
+  trials=rexp(100,rate=20)
+  idx=which(trials>0.05)
+  if(length(idx)==0){
+    fitnessGen()
+  }else{
+    trials[idx[1]]
+  }
+}
+hist(sapply(1:100000,function(i) exp(fitnessGen())-1),breaks=seq(0,100,0.01),xlim=c(0,1),xlab="Selective Coefficient Per Year",main="Sampled Selective Cofficent Distribution")
+```
+
+Now run the sim:
+
+```{r,message=FALSE,results=FALSE}
+dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 80,fitness=fitnessGen,drivers_per_year = 1)
+```
+
+Look at the final per driver counts
+
+```{r}
+print(dps$cfg$info %>% filter(population>0))
+```
+
+Plot an example sampled tree
+
+```{r, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+dpst=get_subsampled_tree(dps,200)
+dpst=get_elapsed_time_tree(dpst)
+plot_tree_events(dpst)
+dpst=get_elapsed_time_tree(dpst,mutrateperdivision = 1,backgroundrate = 19/365)
+plot_tree_events(dpst)
+```
