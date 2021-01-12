@@ -41,6 +41,7 @@ int PhyloNode::addChild(shared_ptr<PhyloNode> child){
 }
 int PhyloNode::removeChild(shared_ptr<PhyloNode> child){
 	children.remove(child);
+  return 0;
 }
 
 
