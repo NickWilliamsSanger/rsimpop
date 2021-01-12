@@ -259,26 +259,17 @@ run_neutral_sim=function( initial_division_rate,
                                             target_pop_size=1e5,
                                             nyears=40
 ){
-
-  cfg=list(compartment=data.frame(val=c(0,1),rate=c(-1,initial_division_rate),popsize=c(1,target_pop_size)),
-           info=data.frame(val=c(0,1,1),fitness=c(0,0,0),population=rep(0,3)))
-  params=list(n_sim_days=50*365,##This is the longest that the simulation will continue
+  cfg=getDefaultConfig(target_pop_size,rate=initial_division_rate,ndriver=1,basefit = 0)
+  params=list(n_sim_days=nyears*365,
               b_stop_at_pop_size=1,
               b_stop_if_empty=0
   )
   growthphase=sim_pop(NULL,params=params,cfg)
-  hscDivTime=1/(2*final_division_rate)
-
-  tree0=get_tree_from_simpop(growthphase)
   cfg$compartment$rate[2]=final_division_rate
   cfg$compartment$popsize[2]=target_pop_size
-  years=nyears
-  params[["n_sim_days"]]=nyears*365 ##years of simulation
-  params[["b_stop_at_pop_size"]]=0 ## So it doesn't stop simulating immediately
-  adult1=sim_pop(tree0,params=params,cfg)
-  adult1=combine_simpops(growthphase,adult1)
-  fulltree=get_tree_from_simpop(adult1)
-  return(fulltree)
+  params[["b_stop_at_pop_size"]]=0
+  adult1=sim_pop(growthphase,params=params,cfg)
+  return(combine_simpops(growthphase,adult1))
 }
 
 

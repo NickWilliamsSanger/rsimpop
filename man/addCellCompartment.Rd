@@ -4,7 +4,14 @@
 \alias{addCellCompartment}
 \title{Adds a new cell compartment to a simpop configuration}
 \usage{
-addCellCompartment(cfg, population, rate, ndriver, basefit, descr = NULL)
+addCellCompartment(
+  cfg,
+  population,
+  rate,
+  ndriver = 0,
+  basefit = 0,
+  descr = NULL
+)
 }
 \arguments{
 \item{cfg}{list. simpop config}

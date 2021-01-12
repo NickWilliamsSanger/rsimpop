@@ -354,16 +354,17 @@ void CellSimulation::setCompartmentInfoRecursively(shared_ptr<PhyloNode> thisNod
 	//TODO: Replace compartment and drivers by a state triplet compartment_id,sub_compartment_id,ndrivers  ## add
 	int val;
 	int nsub;
-	int drivervals[]={0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576};
+	//int drivervals[]={0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576};
 	//The nodes are allocated to the correct sub-compartment based on a fixed binary expansion scheme [ugly but works]
 	//See cfg$info for
 	if(thisNode->events.size()>0){
 		for(const shared_ptr<Event> & event: thisNode->events){
 			val=event->value;
-			if(event->driverid>20){
-				throw "CellSimulaton:setCompartmentInfoRecursively: Too many drivers!";
-			}
-			driverid+=drivervals[event->driverid];
+			//if(event->driverid>20){
+			//	throw "CellSimulaton:setCompartmentInfoRecursively: Too many drivers!";
+			//}
+			//driverid+=drivervals[event->driverid];
+			driverid=event->driverid;
 			compartment=val;
 			//Could reset driverid if compartment changes..
 		}
@@ -375,7 +376,8 @@ void CellSimulation::setCompartmentInfoRecursively(shared_ptr<PhyloNode> thisNod
 		}
 		nsub=compartments[compartment]->nsub;
 		//Note that we only addNode to a compartment if it is a tip
-		compartments[compartment]->addNode(thisNode,driverid);
+		//compartments[compartment]->addNode(thisNode,driverid);
+		compartments[compartment]->addNode(thisNode,compartments[compartment]->getSub(driverid));
 		(*tip_idx)++;
 		return;
 	}

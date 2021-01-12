@@ -55,9 +55,8 @@ print(cfg)
 sp=sim_pop(NULL,params=list(n_sim_days=365*2,b_stop_at_pop_size=1),cfg=cfg)
 ##Look at the population size trajectory
 plot(sp)
-fulltree1=get_tree_from_simpop(sp)
 ##Subsample tree
-sampledtree1=get_subsampled_tree(fulltree1,100)
+sampledtree1=get_subsampled_tree(sp,100)
 print(sampledtree1)
 plot_tree(sampledtree1,cex.label = 0.5)
 title("Sampled Zygote Tree: Division Tree")
@@ -73,7 +72,7 @@ plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tr
 
 Actually this illustrates a potential problem with the outgroup sample still having a acquired mutations because it has a finite duration (0 to 365 days)..
 
-The changes between compartments is specified in a separate dataframe tree$events that is maintained and updated by the simulator.   
+The changes between compartments is specified in a separate data.frame, tree$events , that is maintained and updated by the simulator.   
 
 ```{r events, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 t1=plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -93,12 +92,12 @@ sampledtree1a=addDifferentiationEvents(sampledtree1,cfg,2,nEvent=10)
 print(sampledtree1a$events)
 ```
 
-Each branch carries its final state...
+Each branch carries its final compartment membership in the "state" vector.
 ```{r plotcompartment, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 sampledtree1a$color = c("grey","black","red")[sampledtree1a$state+1]
 plot_tree(sampledtree1a,cex.label = 0.5);title("Highlights branches with compartment changes")
 ```
-Alternatively can visualise using the built in function *plot_tree_events*
+The above plot does not capture the situation when compartment changes take place mid-branch - so alternatively we can better visualise the situation using the built in function *plot_tree_events*
 ```{r plotc2, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 plot_tree_events(sampledtree1a)
 ```
@@ -109,8 +108,7 @@ We've already updated the config with the target population sizes and division r
 sp2=sim_pop(sampledtree1a,params=list(n_sim_days=365*10),cfg=sampledtree1a$cfg)
 sp2=combine_simpops(sp,sp2)
 plot(sp2)
-fulltree2=get_tree_from_simpop(sp2)
-sampledtree2=get_subsampled_tree(fulltree2,100)
+sampledtree2=get_subsampled_tree(sp2,100)
 plot_tree_events(sampledtree2,cex.label = 0.5)
 ```
 
@@ -126,8 +124,7 @@ print(selsim$cfg$info)
 
 Plot a sampled tree
 ```{r seltree, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
-seltree=get_tree_from_simpop(selsim)
-seltree100=get_subsampled_tree(seltree,100)
+seltree100=get_subsampled_tree(selsim,100)
 print(seltree100$cfg$info)
 plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
 seltree100rt=get_elapsed_time_tree(seltree100)
@@ -155,6 +152,7 @@ plot_tree_events(get_elapsed_time_tree(tseltree200),cex.label=0)
 ## Neutral simulation with a trajectory
 
 Create a trajectory dataframe with 3 columns (ts,target_pop_size,division_rate) and simulate using the run_neutral_trajectory wrapper function. Note that timestamps and rates are expressed in units of days and expected divisions per day respectively.
+
 ```{r neutwithtraj, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 trajectory=data.frame(ts=365*(1:80),target_pop_size=5e4+100*(1:80),division_rate=1/(2*190))
 trajectory$target_pop_size[5:10]=2*trajectory$target_pop_size[5:10]

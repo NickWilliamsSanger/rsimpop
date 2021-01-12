@@ -11,10 +11,12 @@
 #include <string>
 using namespace std;
 CellCompartment::CellCompartment(int id,
-		int targetPopSize,double divisionRate,std::vector<double> fitness):
-		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate),mFitness(fitness){
-		nsub=fitness.size();
+		int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID):
+		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate){
+		nsub=fitnessID.size();
 		for(int i=0;i<nsub;i++){
+			idxByID[fitnessID[i].second]=i;
+			mFitness[i]=fitnessID[i].first;
 			vector<shared_ptr<PhyloNode>> tmp;
 			subCompartments.push_back(tmp);
 			bSubActive.push_back(false);
@@ -42,6 +44,12 @@ CellCompartment::~CellCompartment() {
 //double rrexp(double lambda){
 //  return exp_rand()/lambda;
 //}
+
+
+int CellCompartment::getSub(int ID){
+	return idxByID[ID];
+}
+
 
 void CellCompartment::addNode(shared_ptr<PhyloNode> node,int subid){
 	subCompartments[subid].push_back(node);
@@ -165,6 +173,7 @@ void CellCompartment::setRates(){
 		mTotalDeathRate=tmp>0?tmp:0.0;
 	}
 }
+
 
 /* Moved to CellSimulation.cpp
 void CellCompartment::doEvent(CellSimulation & sim);

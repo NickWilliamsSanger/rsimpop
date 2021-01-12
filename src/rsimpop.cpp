@@ -9,6 +9,7 @@
 #include <map>
 #include <list>
 #include <set>
+#include <utility>
 #include "CellSimulation.h"
 #include "CellCompartment.h"
 #include "PhyloNode.h"
@@ -22,21 +23,18 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 		int * eventnode,double * eventts,int * eventval,int * eventdriverid,
 		int * nevents,int * compinfoval,double * compinfofitness,
 		int * ncomp,int* compartmentsize,double * compartmentrate,
-		int * compartmentval,int * ncompartment){
-	//printf("No of compartments=%d\n",*ncompartment);
-	//printf("ncomp info=%d\n",*ncomp);
-	//printf("nevents info=%d\n",*nevents);
+		int * compartmentval,int * ncompartment,int * driverid){
 	for(int i=0;i<*nevents;i++){
 		events.push_back(Event(eventnode[i],eventts[i],eventval[i],eventdriverid[i]));
 	}
-	std::map<int, vector<double>> fitnessByCompartment;
+	std::map<int, vector<std::pair<double,int>>> fitnessByCompartment;
 	for(int i=0;i<*ncomp;i++){
 		auto it=fitnessByCompartment.find(compinfoval[i]);
 		if(it==fitnessByCompartment.end()){
-			vector<double> tmp;
+			vector<std::pair<double,int>> tmp;
 			fitnessByCompartment[compinfoval[i]]=tmp;
 		}
-		fitnessByCompartment[compinfoval[i]].push_back(compinfofitness[i]);
+		fitnessByCompartment[compinfoval[i]].push_back(std::pair<double,int>(compinfofitness[i],driverid[i]));
 
 	}
 	for(int i=0;i<*ncompartment;i++){
@@ -99,7 +97,7 @@ void sim_pop2(
 		int * ncompartment,
 		int * compinfoval,
 		double * compinfofitness,
-		int * drivercfg,
+		int * driverid,
 		int * ndriver,
 		int *  ncomp,
 		double * params,
@@ -141,7 +139,7 @@ void sim_pop2(
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
 		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
-				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment);
+				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		//printf("allocating cellSim\n");
 
 		CellSimulation sim(edges,
@@ -204,7 +202,7 @@ void sub_sample(int * edges,
 		int * ncompartment,
 		int * compinfoval,
 		double * compinfofitness,
-		int * drivercfg,
+		int * driverid,
 		int * ndriver,
 		int *  ncomp,
 		int * subtips,
@@ -232,7 +230,7 @@ void sub_sample(int * edges,
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
 		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
-				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment);
+				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		printf("Specifying %d tips to keep!\n",*nsubtips);
 		std::set<int> tipsToDelete;
 		int i;
