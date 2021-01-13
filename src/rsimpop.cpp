@@ -9,6 +9,7 @@
 #include <map>
 #include <list>
 #include <set>
+#include <utility>
 #include "CellSimulation.h"
 #include "CellCompartment.h"
 #include "PhyloNode.h"
@@ -22,35 +23,38 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 		int * eventnode,double * eventts,int * eventval,int * eventdriverid,
 		int * nevents,int * compinfoval,double * compinfofitness,
 		int * ncomp,int* compartmentsize,double * compartmentrate,
-		int * compartmentval,int * ncompartment){
-	//printf("No of compartments=%d\n",*ncompartment);
-	//printf("ncomp info=%d\n",*ncomp);
-	//printf("nevents info=%d\n",*nevents);
+		int * compartmentval,int * ncompartment,int * driverid){
 	for(int i=0;i<*nevents;i++){
 		events.push_back(Event(eventnode[i],eventts[i],eventval[i],eventdriverid[i]));
 	}
-	std::map<int, vector<double>> fitnessByCompartment;
+	std::map<int, vector<std::pair<double,int>>> fitnessByCompartment;
 	for(int i=0;i<*ncomp;i++){
 		auto it=fitnessByCompartment.find(compinfoval[i]);
 		if(it==fitnessByCompartment.end()){
-			vector<double> tmp;
+			vector<std::pair<double,int>> tmp;
 			fitnessByCompartment[compinfoval[i]]=tmp;
+			//printf("adding %d\n",compinfoval[i]);
 		}
-		fitnessByCompartment[compinfoval[i]].push_back(compinfofitness[i]);
+		fitnessByCompartment[compinfoval[i]].push_back(std::pair<double,int>(compinfofitness[i],driverid[i]));
 
 	}
+	//printf("collected fitness\n");
 	for(int i=0;i<*ncompartment;i++){
 		//printf("comp: %d %d %d\n",compartmentval[i],i,*ncompartment);
 		if(compartmentval[i]!=i){
 			printf("Should be contiguous %d %d\n",compartmentval[i],i);
 			throw "compartment should have contiguous ordered value 0..n";
 		}
+		//printf("i=%d",i);
+		//printf("val=%d\n",compartmentval[i]);
 		cellCompartments.push_back(std::make_shared<CellCompartment>(CellCompartment(i,
 				compartmentsize[i],
 				compartmentrate[i],
 				fitnessByCompartment[compartmentval[i]]
 				)));
+		//printf("done %d\n",compartmentval[i]);
 	}
+	//printf("initialiased cellcomps\n");
 }
 
 void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventvalOut,int * eventdriveridOut,double * eventtsOut,int * eventnodeOut){
@@ -99,7 +103,7 @@ void sim_pop2(
 		int * ncompartment,
 		int * compinfoval,
 		double * compinfofitness,
-		int * drivercfg,
+		int * driverid,
 		int * ndriver,
 		int *  ncomp,
 		double * params,
@@ -135,13 +139,13 @@ void sim_pop2(
 		int b_stop_at_pop_size=round(params[2]);
 		int b_stop_if_empty=round(params[1]);
 		double driverAcquisitionRate=params[4];
-		if(driverAcquisitionRate>1e-7){
+		if(driverAcquisitionRate>1e-5){
 			throw "driverAcquisitionRate too high!";
 		}
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
 		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
-				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment);
+				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		//printf("allocating cellSim\n");
 
 		CellSimulation sim(edges,
@@ -169,9 +173,7 @@ void sim_pop2(
 			nDriverOut[k++]=std::get<2>(timepoint);//
 		}
 		*nEventsCount=popTrace.size();
-		//Get summary compartment sizes...
-
-		printf("status=%d\n",*status);
+		//printf("status=%d\n",*status);
 		//*status=0;
 
 	} catch (const char* msg) {
@@ -204,7 +206,7 @@ void sub_sample(int * edges,
 		int * ncompartment,
 		int * compinfoval,
 		double * compinfofitness,
-		int * drivercfg,
+		int * driverid,
 		int * ndriver,
 		int *  ncomp,
 		int * subtips,
@@ -232,7 +234,7 @@ void sub_sample(int * edges,
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
 		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
-				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment);
+				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		printf("Specifying %d tips to keep!\n",*nsubtips);
 		std::set<int> tipsToDelete;
 		int i;

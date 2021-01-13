@@ -1,13 +1,13 @@
 Package: rsimpop
 Title: Simulates Cellular Evolution using a Continous Time Birth Death Model
-Version: 2.0.0
+Version: 2.0.2
 Authors@R: 
     person(given = "Nicholas",
            family = "Williams",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "nw14@sanger.ac.uk",
            comment = c(ORCID = "https://orcid.org/0000-0003-3989-9167"))
-Description: Simulates Cellular Evolution using a Continous Time Birth Death Model.  The package is supports the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
+Description: Simulates Cellular Evolution using a Continous Time Birth Death Model.  The package supports the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
 Depends:
     phytools,
     dplyr,

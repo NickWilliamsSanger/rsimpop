@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <iostream>
+#include <map>
 #include "PhyloNode.h"
 #include "RandomNumberGenerator.h"
 
@@ -23,12 +24,13 @@ private:
 	double * prob;
 	vector<int> nonEmptyCompartmentIndices;
 	int numNonEmptyCompartments;
+	std::map<int, int> idxByID;
 
 
 
 
 public:
-	CellCompartment(int id,int targetPopSize,double divisionRate,std::vector<double> fitness);
+	CellCompartment(int id,int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID);
 	virtual ~CellCompartment();
 	int id;
 	int mTargetPopSize;
@@ -48,6 +50,7 @@ public:
 	double getTotalDivisionRate();
 	void setRates();
 	void setNumNonEmptyIndices();
+	int getSub(int ID);
 
 
 

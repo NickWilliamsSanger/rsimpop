@@ -116,12 +116,23 @@ run_selection_sim=function( initial_division_rate=0.1,
 #' @param target_pop_size - Size of target population
 #' @param drivers_per_year - The expected number of drivers per year
 #' @param nyears - Total number of years to run the simulation
+#' @param fitnessGen - Function that returns a single value for the selective coefficient
 #' @param bForceReseed - Whether to reseed.
 #' @param offset - time offset for choosing seed.
 #' @return simpop object.
 #' @export
 #' @examples
-#' selsim=run_selection_sim(0.05,1/365,target_pop_size = 5e4,nyears = 50,fitness=0.3)
+#' fitnessGen=function(){
+#'  trials=rexp(100,rate=30)
+#'  idx=which(trials>0.05)
+#'  if(length(idx)==0){
+#'   fitnessGen()
+#'  }else{
+#'   trials[idx[1]]
+#'  }
+#' }
+#' dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 30,fitness=fitnessGen,drivers_per_year = 5)
+#' 
 run_driver_process_sim=function( initial_division_rate=0.1,
                                   final_division_rate=1/365,
                                   target_pop_size=1e5,
@@ -186,14 +197,14 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     #browser()
     tree0=addDriverEvent(tree0,tree0$cfg,1,fitness=fitnessGen())
     tmp2=tree0
-    adult=sim_pop(tree0,params=params,tree0$cfg)
-    adult=combine_simpops(tree0,adult)
-    tree0=get_tree_from_simpop(adult)
-    print(tree0$cfg$info %>% dplyr::filter(population>0))
+    adult=sim_pop(tree0,params=params,tree0$cfg,b_verbose = FALSE)
+    tree0=combine_simpops(tree0,adult)
+    #tree0=get_tree_from_simpop(adult)
+    #print(tree0$cfg$info %>% dplyr::filter(population>0))
     if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
       browser()
     }
-    if(k>1000){
+    if(k>10000){
       stop("too many iterations!")
     }
   }
@@ -259,26 +270,17 @@ run_neutral_sim=function( initial_division_rate,
                                             target_pop_size=1e5,
                                             nyears=40
 ){
-
-  cfg=list(compartment=data.frame(val=c(0,1),rate=c(-1,initial_division_rate),popsize=c(1,target_pop_size)),
-           info=data.frame(val=c(0,1,1),fitness=c(0,0,0),population=rep(0,3)))
-  params=list(n_sim_days=50*365,##This is the longest that the simulation will continue
+  cfg=getDefaultConfig(target_pop_size,rate=initial_division_rate,ndriver=1,basefit = 0)
+  params=list(n_sim_days=nyears*365,
               b_stop_at_pop_size=1,
               b_stop_if_empty=0
   )
   growthphase=sim_pop(NULL,params=params,cfg)
-  hscDivTime=1/(2*final_division_rate)
-
-  tree0=get_tree_from_simpop(growthphase)
   cfg$compartment$rate[2]=final_division_rate
   cfg$compartment$popsize[2]=target_pop_size
-  years=nyears
-  params[["n_sim_days"]]=nyears*365 ##years of simulation
-  params[["b_stop_at_pop_size"]]=0 ## So it doesn't stop simulating immediately
-  adult1=sim_pop(tree0,params=params,cfg)
-  adult1=combine_simpops(growthphase,adult1)
-  fulltree=get_tree_from_simpop(adult1)
-  return(fulltree)
+  params[["b_stop_at_pop_size"]]=0
+  adult1=sim_pop(growthphase,params=params,cfg)
+  return(combine_simpops(growthphase,adult1))
 }
 
 
@@ -371,4 +373,64 @@ run_2compartment_model=function(){
 
 simple_continuous_selection=function(){
 
+}
+
+#' Restarts a multiple driver scenario
+#'
+#' The user specifies the rate at which drivers are introduced and the distribution the selective coefficients are drawn from.
+#' Note that unlike in \code{\link{run_selection_sim}} the drivers are allowed to stochastically die out.
+#' The drivers at the specified rate with the gap between successive introductions exponentially distributed.
+#' @param insim - Result of previous sim
+#' @param final_division_rate - Rate of symmetric cell division once population equilibrium is reached.
+#' @param target_pop_size - Size of target population
+#' @param drivers_per_year - The expected number of drivers per year
+#' @param nyears - Total number of years to run the simulation
+#' @param bForceReseed - Whether to reseed.
+#' @param offset - time offset for choosing seed.
+#' @return simpop object.
+#' @export
+#' @examples
+#' fitnessGen=function(){
+#'  trials=rexp(100,rate=30)
+#'  idx=which(trials>0.05)
+#'  if(length(idx)==0){
+#'   fitnessGen()
+#'  }else{
+#'   trials[idx[1]]
+#'  }
+#' }
+#' dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 30,fitness=fitnessGen,drivers_per_year = 5)
+#' ## Do stuff - subsample, plot trees etc and the restart to simulate the next 10 years:
+#' dps2=continue_driver_process_sim(dps,40,fitnessGen = fitnessGen)
+#' ## Do stuff and simulation the next 10 years
+#' dps2=continue_driver_process_sim(dps2,50,fitnessGen = fitnessGen)
+continue_driver_process_sim=function(insim,nyears,fitnessGen){
+  tree0=insim
+  params=insim$params
+  params$maxt=NULL
+  params$n_sim_days=nyears*365
+  if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
+    browser()
+  }
+  k=1
+  while(TRUE){
+    k=k+1
+    ## Deal with end of last sim and next driver being too close together. Very rarely kicks in.
+    ##params[["n_sim_days"]]=min(nyears*365,max(driverdt[k],max(tree0$timestamp)+0.1)) ##years of simulation
+    if(max(tree0$timestamp)>=nyears*365){
+      return(tree0)
+    }
+    tree0=addDriverEvent(tree0,tree0$cfg,1,fitness=fitnessGen())
+    tmp2=tree0
+    adult=sim_pop(tree0,params=params,tree0$cfg,b_verbose = FALSE)
+    tree0=combine_simpops(tree0,adult)
+    #tree0=get_tree_from_simpop(adult)
+    #print(tree0$cfg$info %>% dplyr::filter(population>0))
+    if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
+      browser()
+    }
+    if(k>10000){
+      stop("too many iterations!")
+    }
+  }
 }

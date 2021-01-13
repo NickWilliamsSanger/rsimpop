@@ -11,10 +11,14 @@
 #include <string>
 using namespace std;
 CellCompartment::CellCompartment(int id,
-		int targetPopSize,double divisionRate,std::vector<double> fitness):
-		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate),mFitness(fitness){
-		nsub=fitness.size();
+		int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID):
+		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate){
+		nsub=fitnessID.size();
 		for(int i=0;i<nsub;i++){
+			//printf("sec=%d\n",fitnessID[i].second);
+			//printf("first=%4.5f\n",fitnessID[i].first);
+			idxByID[fitnessID[i].second]=i;
+			mFitness.push_back(fitnessID[i].first);
 			vector<shared_ptr<PhyloNode>> tmp;
 			subCompartments.push_back(tmp);
 			bSubActive.push_back(false);
@@ -42,6 +46,12 @@ CellCompartment::~CellCompartment() {
 //double rrexp(double lambda){
 //  return exp_rand()/lambda;
 //}
+
+
+int CellCompartment::getSub(int ID){
+	return idxByID[ID];
+}
+
 
 void CellCompartment::addNode(shared_ptr<PhyloNode> node,int subid){
 	subCompartments[subid].push_back(node);
@@ -78,7 +88,7 @@ void CellCompartment::printInfo(){
 
 	printf("id=%d\nrate=%5.4f\ntargetPop=%d\nmTotalDeathRate=%7.6f\nmTotalDivRate=%7.6f\n%s\n",id,mDivisionRate,mTargetPopSize,mTotalDeathRate,mTotalDivRate,active ? "ACTIVE" : "INACTIVE");
 	for(int k=0;k<nsub;k++){
-		printf("fitness[%d]=%5.4f,count[%d]=%d\n",k,mFitness[k],k,subCompartments[k].size());
+		printf("fitness[%d]=%5.4f,count[%d]=%lu\n",k,mFitness[k],k,subCompartments[k].size());
 	}
 }
 
@@ -165,6 +175,7 @@ void CellCompartment::setRates(){
 		mTotalDeathRate=tmp>0?tmp:0.0;
 	}
 }
+
 
 /* Moved to CellSimulation.cpp
 void CellCompartment::doEvent(CellSimulation & sim);
