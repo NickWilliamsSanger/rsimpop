@@ -123,7 +123,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7fd43f45a450>
+#> <bytecode: 0x7f811de1e8a8>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -203,6 +203,10 @@ plot_tree_events(sampledtree1a)
 
 <img src="man/figures/README-plotc2-1.png" width="100%" />
 
+    #>   uval     col pch
+    #> 1  0:0 #E41A1C  19
+    #> 2  1:0 #377EB8  19
+    #> 3  2:0 #4DAF4A  19
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -239,6 +243,10 @@ plot_tree_events(sampledtree2,cex.label = 0.5)
 
 <img src="man/figures/README-simagain-2.png" width="100%" />
 
+    #>   uval     col pch
+    #> 1  0:0 #E41A1C  19
+    #> 2  1:0 #377EB8  19
+    #> 3  2:0 #4DAF4A  19
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -339,7 +347,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7fd440be4b40>
+#> <bytecode: 0x7f8120750e90>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -413,6 +421,10 @@ print(seltree100$cfg$info)
 #> 2    1         10     0.0  0       0
 #> 21   1         90     0.3  1       1
 plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
+#>   uval     col pch
+#> 1  0:0 #E41A1C  19
+#> 2  1:0 #377EB8  19
+#> 3  1:1 #4DAF4A  19
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -427,6 +439,10 @@ plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch L
 ``` r
 seltree100rt=get_elapsed_time_tree(seltree100)
 tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: Branch Length=#Real Time")
+#>   uval     col pch
+#> 1  0:0 #E41A1C  19
+#> 2  1:0 #377EB8  19
+#> 3  1:1 #4DAF4A  19
 ```
 
 <img src="man/figures/README-seltree-2.png" width="100%" />
@@ -435,6 +451,10 @@ tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: B
 mp=5
 seltree100m=get_elapsed_time_tree(seltree100,mutrateperdivision=mp,backgroundrate=(20-(365/190)*mp)/365)
 plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations")
+#>   uval     col pch
+#> 1  0:0 #E41A1C  19
+#> 2  1:0 #377EB8  19
+#> 3  1:1 #4DAF4A  19
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -449,6 +469,10 @@ plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branc
 ``` r
 seltree100m2=get_elapsed_time_tree(seltree100,mutrateperdivision=20*(190/365),backgroundrate=0)
 plot_tree_events(seltree100m2,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations v2")
+#>   uval     col pch
+#> 1  0:0 #E41A1C  19
+#> 2  1:0 #377EB8  19
+#> 3  1:1 #4DAF4A  19
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -481,7 +505,7 @@ run_transient_selection
 #>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7fd44506c5e0>
+#> <bytecode: 0x7f8123ab1390>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
@@ -653,13 +677,12 @@ Look at the final per driver counts
 print(dps$cfg$info %>% filter(population>0))
 #>   val population   fitness id driver1 driver2 driver3 driver4 driver5 driver6
 #> 1   0          1 0.0000000  0       0       0       0       0       0       0
-#> 2   1      29380 0.0000000  0       0       0       0       0       0       0
-#> 3   1      69743 0.1744176  1       1       0       0       0       0       0
-#> 4   1        785 0.1151932  2       0       1       0       0       0       0
-#> 5   1         27 0.1012092  7       0       0       0       0       0       0
-#> 6   1         11 0.2636826  5       1       0       0       0       1       0
-#> 7   1          1 0.2408516  3       1       0       1       0       0       0
-#> 8   1          1 0.2992108  4       1       0       0       1       0       0
+#> 2   1      29381 0.0000000  0       0       0       0       0       0       0
+#> 3   1      69744 0.1744176  1       1       0       0       0       0       0
+#> 4   1        788 0.1151932  2       0       1       0       0       0       0
+#> 5   1         32 0.1012092  7       0       0       0       0       0       0
+#> 6   1          1 0.2408516  3       1       0       1       0       0       0
+#> 7   1          1 0.2992108  4       1       0       0       1       0       0
 #>   driver7
 #> 1       0
 #> 2       0
@@ -668,7 +691,6 @@ print(dps$cfg$info %>% filter(population>0))
 #> 5       1
 #> 6       0
 #> 7       0
-#> 8       0
 ```
 
 Plot an example sampled tree
@@ -685,6 +707,11 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
+    #>   uval     col pch
+    #> 1  0:0 #E41A1C  19
+    #> 2  1:0 #377EB8  19
+    #> 3  1:1 #4DAF4A  19
+    #> 4  1:2 #984EA3  19
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -697,6 +724,11 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
 
+    #>   uval     col pch
+    #> 1  0:0 #E41A1C  19
+    #> 2  1:0 #377EB8  19
+    #> 3  1:1 #4DAF4A  19
+    #> 4  1:2 #984EA3  19
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -725,6 +757,10 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
+    #>   uval     col pch
+    #> 1  0:0 #E41A1C  19
+    #> 2  1:0 #377EB8  19
+    #> 3  1:1 #4DAF4A  19
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
