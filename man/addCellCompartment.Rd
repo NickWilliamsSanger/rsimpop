@@ -18,9 +18,9 @@ addCellCompartment(
 
 \item{rate}{target population}
 
-\item{ndriver}{integer. Number of drivers}
+\item{ndriver}{integer. DEPRECATED}
 
-\item{basefit}{numeric. Base fitness}
+\item{basefit}{numeric. DEPRECATED}
 
 \item{descr}{character. Description}
 }

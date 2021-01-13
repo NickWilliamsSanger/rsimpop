@@ -175,7 +175,7 @@ Multiple drivers can be generated at a specified rate so the waiting time betwee
 Firstly the user need to create a function that draws a selection coefficient from a distibution. The simulator isn't optimised to maintain 100s of variants at once - so it is suggested that a minumum selective coefficient be specified (say 0.05) and driver incidence made correspondingly rarer.
 ```{r}
 fitnessGen=function(){
-  trials=rexp(100,rate=20)
+  trials=rexp(100,rate=30)
   idx=which(trials>0.05)
   if(length(idx)==0){
     fitnessGen()
@@ -207,4 +207,17 @@ plot_tree_events(dpst)
 dpst=get_elapsed_time_tree(dpst,mutrateperdivision = 1,backgroundrate = 19/365)
 plot_tree_events(dpst)
 ```
+
+Continue simulating the same individual until the age of 90
+```{r}
+dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessGen)
+```
+Note the driver ids are reused once they become extinct so there is no guarantee they are preserved between runs.
+```{r, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
+dpst=get_subsampled_tree(dps90,200)
+dpst=get_elapsed_time_tree(dpst)
+plot_tree_events(dpst)
+```
+
+
 

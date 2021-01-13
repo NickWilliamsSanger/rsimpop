@@ -159,7 +159,7 @@ int CellSimulation::run(double stopTime,bool bStopAtEquilibrium,bool bStopIfEmpt
 		currentTime+=rndGen->getExponential(totrate+pop*driverRate);
 		if(driverRate>1e-10){
 			if(rndGen->getUniform()<pop*driverRate/(totrate+pop*driverRate)){
-				printf("Stopping to acquire driver @ %7.2f\n",currentTime);
+				//printf("Stopping to acquire driver @ %7.2f\n",currentTime);
 				status=2;
 				break;
 			}
@@ -175,8 +175,8 @@ int CellSimulation::run(double stopTime,bool bStopAtEquilibrium,bool bStopIfEmpt
 		}
 		if(currentTime/365.0 -lastYear > 1 ){
 			printf("PROGRESS: T=%3.2f year.  population=%d",currentTime/365.0,ntips);
-			if(compartments[1]->nsub>1){
-				printf(":drivers=%d\n",compartments[1]->getSubCounts()[1].second);
+			if (!populationTrace.empty()){
+				printf(":drivers=%d\n",std::get<2>(populationTrace.back()));
 			}else{
 				printf("\n");
 			}

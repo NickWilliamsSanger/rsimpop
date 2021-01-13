@@ -15,8 +15,10 @@ CellCompartment::CellCompartment(int id,
 		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate){
 		nsub=fitnessID.size();
 		for(int i=0;i<nsub;i++){
+			//printf("sec=%d\n",fitnessID[i].second);
+			//printf("first=%4.5f\n",fitnessID[i].first);
 			idxByID[fitnessID[i].second]=i;
-			mFitness[i]=fitnessID[i].first;
+			mFitness.push_back(fitnessID[i].first);
 			vector<shared_ptr<PhyloNode>> tmp;
 			subCompartments.push_back(tmp);
 			bSubActive.push_back(false);
@@ -86,7 +88,7 @@ void CellCompartment::printInfo(){
 
 	printf("id=%d\nrate=%5.4f\ntargetPop=%d\nmTotalDeathRate=%7.6f\nmTotalDivRate=%7.6f\n%s\n",id,mDivisionRate,mTargetPopSize,mTotalDeathRate,mTotalDivRate,active ? "ACTIVE" : "INACTIVE");
 	for(int k=0;k<nsub;k++){
-		printf("fitness[%d]=%5.4f,count[%d]=%d\n",k,mFitness[k],k,subCompartments[k].size());
+		printf("fitness[%d]=%5.4f,count[%d]=%lu\n",k,mFitness[k],k,subCompartments[k].size());
 	}
 }
 

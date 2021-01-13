@@ -33,22 +33,28 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 		if(it==fitnessByCompartment.end()){
 			vector<std::pair<double,int>> tmp;
 			fitnessByCompartment[compinfoval[i]]=tmp;
+			//printf("adding %d\n",compinfoval[i]);
 		}
 		fitnessByCompartment[compinfoval[i]].push_back(std::pair<double,int>(compinfofitness[i],driverid[i]));
 
 	}
+	//printf("collected fitness\n");
 	for(int i=0;i<*ncompartment;i++){
 		//printf("comp: %d %d %d\n",compartmentval[i],i,*ncompartment);
 		if(compartmentval[i]!=i){
 			printf("Should be contiguous %d %d\n",compartmentval[i],i);
 			throw "compartment should have contiguous ordered value 0..n";
 		}
+		//printf("i=%d",i);
+		//printf("val=%d\n",compartmentval[i]);
 		cellCompartments.push_back(std::make_shared<CellCompartment>(CellCompartment(i,
 				compartmentsize[i],
 				compartmentrate[i],
 				fitnessByCompartment[compartmentval[i]]
 				)));
+		//printf("done %d\n",compartmentval[i]);
 	}
+	//printf("initialiased cellcomps\n");
 }
 
 void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventvalOut,int * eventdriveridOut,double * eventtsOut,int * eventnodeOut){
@@ -133,7 +139,7 @@ void sim_pop2(
 		int b_stop_at_pop_size=round(params[2]);
 		int b_stop_if_empty=round(params[1]);
 		double driverAcquisitionRate=params[4];
-		if(driverAcquisitionRate>1e-7){
+		if(driverAcquisitionRate>1e-5){
 			throw "driverAcquisitionRate too high!";
 		}
 		vector<Event> events;
@@ -167,9 +173,7 @@ void sim_pop2(
 			nDriverOut[k++]=std::get<2>(timepoint);//
 		}
 		*nEventsCount=popTrace.size();
-		//Get summary compartment sizes...
-
-		printf("status=%d\n",*status);
+		//printf("status=%d\n",*status);
 		//*status=0;
 
 	} catch (const char* msg) {
