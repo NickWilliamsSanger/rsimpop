@@ -97,9 +97,7 @@ sim_pop=function(tree,
     stop("n_sim_days must be greater than max(timestamp)")
   }
 
-  ntips=length(tree$tip.label)### Get rid of tip label for actual sims...
-  ##MAX_EVENTS=ceiling(2*params[["n_sim_days"]]);##ceiling(2*params[["pop_size"]]*params[["n_sim_days"]]*params[["divide_rate"]]);## 1 event per day FIX THIS
-  ###cat("MAX_EVENTS=",MAX_EVENTS,"\n")
+  ntips=length(tree$tip.label)
   nevents=dim(tree$events)[1]
 
   compartment=cfg$compartment
@@ -112,9 +110,9 @@ sim_pop=function(tree,
   }else{
     dsm=as.matrix(compartmentinfo[,idxd])
   }
-  if(ndriver>20){
-    stop("Too many drivers: edit CellSimulation::setCompartmentInfoRecursively in C++ to support more!")
-  }
+ # if(ndriver>1000){
+ #   stop("Too many drivers: edit CellSimulation::setCompartmentInfoRecursively in C++ to support more!")
+ # }
   totalpop=max(sum(compartment$popsize),length(tree$tip.label))
   MAX_SIZE=3*totalpop ##Allows for stochastic drift in population size (need to make this robust)
 
@@ -139,13 +137,12 @@ sim_pop=function(tree,
          compartmentval=as.integer(compartment$val),
          compartmentrate=as.double(compartment$rate),
          compartmentsize=as.integer(compartment$popsize),
-         ncompartment=as.integer(length(compartment$val)),###
+         ncompartment=as.integer(length(compartment$val)),
          compinfoval=as.integer(compartmentinfo$val),
          compinfofitness=as.double(compartmentinfo$fitness),
-         compinfodriverstatus=as.integer(dsm),
+         compinfodriverstatus=as.integer(compartmentinfo$id),#as.integer(dsm),
          compinfondriver=as.integer(ndriver),
-         ncomp=as.integer(length(compartmentinfo$val)),###
-         ###ADDD in driver info here!
+         ncomp=as.integer(length(compartmentinfo$val)),
          params=as.double(params),
          nparams=as.integer(length(params)),##
          max_size=as.integer(MAX_SIZE),
@@ -313,7 +310,7 @@ C_subsample_pop=function(tree,tips){
          ncompartment=as.integer(length(cfg$compartment$val)),###
          compinfoval=as.integer(cfg$info$val),
          compinfofitness=as.double(cfg$info$fitness),
-         compinfodriverstatus=as.integer(as.matrix(cfg$info[,idxd])),
+         compinfodriverstatus=as.integer(cfg$info$id),#as.integer(as.matrix(cfg$info[,idxd])),
          compinfondriver=as.integer(length(idxd)),
          ncomp=as.integer(length(cfg$info$val)),##
          as.integer(tips),  ##Actual tips to keep!
@@ -407,7 +404,7 @@ assign_celltype=function#Sets the celltype for current cells (tips)
   idx=which(!is.na(celltype) & celltype!=0)
   utype=unique(celltype[idx])
   newtype=setdiff(utype,tree$events$value)
-  cat("Creating new cell types",newtype,"\n")
+  #cat("Creating new cell types",newtype,"\n")
   if(any(newtype>0 & !(newtype %in% cfg$compartment$val))){
     stop("bad config provided")
   }
@@ -418,6 +415,8 @@ assign_celltype=function#Sets the celltype for current cells (tips)
   tree$events=rbind(tree$events,newevents)
   idx=which(!is.na(celltype))
   tree$state[match(idx,tree$edge[,2])]=celltype[idx]
+  ##Following can be deleted
+  tree$driverid[match(idx,tree$edge[,2])]=driverid[idx]
   tree
 }
 
@@ -490,161 +489,39 @@ getDefaultConfig=function(target_pop_size,rate,
                          rate=-1,
                          popsize=1,
                          desc="outgroup")
-  info=data.frame(val=0,population=0,fitness=0,driver1=0)
+  info=data.frame(val=0,population=0,fitness=0,id=0,driver1=0)
   cfg=list(compartment=compartment,info=info)
   if(length(target_pop_size)>1){
     stop("please provide scalars")
   }
-  addCellCompartment(cfg,target_pop_size,rate,ndriver,basefit,descr)
+  #addCellCompartment(cfg,target_pop_size,rate,ndriver,basefit,descr)
+  addCellCompartment(cfg,target_pop_size,rate,descr=descr)
 }
 
 #' Adds a new cell compartment to a simpop configuration
 #' @param cfg list. simpop config
 #' @param rate target population
-#' @param ndriver integer. Number of drivers
-#' @param basefit numeric. Base fitness
+#' @param ndriver integer. DEPRECATED
+#' @param basefit numeric. DEPRECATED
 #' @param descr character. Description
 #' @return list simpop config
 #' @export
-addCellCompartment=function(cfg,population,rate,ndriver,basefit,descr=NULL){
-  if(ndriver<1){
-    warning("Must add one driver to config.. Setting ndriver=1\n")
-    ndriver=1
-  }
-  nd=length(grep("^driver",colnames(cfg$info)))
-  if(nd<ndriver){
-    for(i in (nd+1):ndriver){
-      cfg$info[[sprintf("driver%d",i)]]=0
-    }
-  }
+addCellCompartment=function(cfg,population,rate,ndriver=0,basefit=0,descr=NULL){
   val=max(cfg$compartment$val)+1
   if(is.null(descr)){
     descr=sprintf("cellType%d",val)
   }
-  driverinfo=data.frame(val=0:(2**ndriver-1))
-  driverinfo$population=0
-  driverinfo$fitness=0
-  for(i in 0:(ndriver-1)){
-    driverinfo[[sprintf("driver%d",i+1)]]=(driverinfo$val %/% 2**i) %% 2
-  }
-  if(ndriver>1){
-    driverinfo$fitness=apply(driverinfo[,-(1:3)],1,function(x) (1+basefit)**sum(x)-1)
-  }else{
-    driverinfo$fitness=driverinfo[,-(1:3)]*basefit
-  }
-  if(nd>ndriver){
-    for(i in (ndriver+1):nd){
-      driverinfo[[sprintf("driver%d",i)]]=0
-    }
-  }
-  driverinfo$val=val
-  cfg$info=rbind(cfg$info,driverinfo)
+  row=cfg$info[which(cfg$info$val==0),]
+  row$val=val
+  row$population=0
+  row$fitness=0
+  row$id=0
+
+  cfg$info=rbind(cfg$info,row)
   cfg$compartment=rbind(cfg$compartment,data.frame(val=val,rate=rate,popsize=population,desc=descr))
-  cfg$drivers=rbind(cfg$drivers,data.frame(val=val,driver=1:ndriver,fitness=rep(basefit,ndriver)))
+  cfg$drivers=rbind(cfg$drivers,data.frame(val=val,driver=1,fitness=0))
   cfg
 }
-
-addDriver=function(cfg,cellType,fitness){
-  if(is.null(cfg$drivers)){
-    cfg$drivers=data.frame(val=cellType,driver=1,fitness=fitness)
-  }else{
-    nn=length(which(cfg$drivers$val==cellType))
-    cfg$drivers=rbind(cfg$drivers,
-                      data.frame(val=cellType,driver=nn+1,fitness=fitness))
-    cfg$drivers=cfg$drivers[order(cfg$drivers$val,cfg$drivers$driver),]
-  }
- ## browser()
-  d1=length(grep("^driver",colnames(cfg$info)))
-  p1=cfg$info
-  p2=cfg$info[which(cfg$info$val==cellType),]
-  d=d1+1
-  p1[[sprintf("driver%d",d)]]=0
-  p2[[sprintf("driver%d",d)]]=1
-  p2$fitness=(1+fitness)*(p2$fitness+1)-1
-  cfg$info=rbind(p1,p2)
-  cfg$info=cfg$info[order(cfg$info$val),]
-
-  cfg=recalculateFitness(cfg,cellType)
-  cfg
-}
-
-#' Adds a driver event to a current simpop
-#' @param tree - simpop.
-#' @param cfg  - List. simpop config.
-#' @param currentCompartment - integer. ID (value) of compartment to be added to.
-#' @export
-addDriverEvent=function(tree,cfg,currentCompartment,fitness){
-  N=length(tree$tip.label)
-  idxt=match(1:N,tree$edge[,2])
-  idxx=which(tree$state[idxt]==currentCompartment)
-  if(length(idxx)==0){
-    stop("Choose a currentCompartment that has non-zero representation in tree!")
-  }
-  if(abs(fitness)<1e-6){
-    stop("Unable to addDriverEvent with zero fitness")
-  }
-
-  idx=sample(idxx,size = 1,replace = FALSE)
-  celltype=rep(NA,N)
-  celltype[idx]=tree$state[idx]
-  ##Find driver ID take the lowest with an empty population
-  idxd=grep("^driver",colnames(cfg$info))
-  d=-1
-  for(i in 1:length(idxd)){
-    if(sum(cfg$info$population[which(cfg$info$val==currentCompartment & cfg$info[,idxd[i]]==1)])==0){
-      d=i
-      break
-    }
-  }
-  if(d<1){
-    #cat("Failed to find slot for driver:adding driver\n")
-    cfg=addDriver(cfg,currentCompartment,fitness)
-    d=max(cfg$drivers$driver[which(cfg$drivers$val==currentCompartment)])
-  }else{
-    cfg$drivers$fitness[which(cfg$drivers$val==currentCompartment & cfg$drivers$driver==d)]=fitness
-    cfg=recalculateFitness(cfg,currentCompartment)
-  }
-  driverid=rep(d,length(celltype))
-  assign_celltype(tree,celltype,driverid,cfg=cfg)
-}
-
-recalculateFitness=function(cfg,cellType){
-    ndriver=max(cfg$drivers$driver)
-    idxInDriver=which(cfg$drivers$val==cellType)
-    if(length(idxInDriver)==0){
-      stop("Assertion error")
-    }
-    nd=length(grep("^driver",colnames(cfg$info)))
-    if(nd<ndriver){
-      stop("Assertion error 2")
-      for(i in (nd+1):ndriver){
-        cfg$info[[sprintf("driver%d",i)]]=0
-      }
-    }
-    val=cellType
-    driverinfo=data.frame(val=0:(2**ndriver-1))
-    driverinfo$population=cfg$info$population[which(cfg$info$val==cellType)]
-    driverinfo$fitness=0
-    for(i in 0:(ndriver-1)){
-      driverinfo[[sprintf("driver%d",i+1)]]=(driverinfo$val %/% 2**i) %% 2
-    }
-    if(length(idxInDriver)>1){
-      driverinfo$fitness=apply(driverinfo[ ,sprintf("driver%d",1:length(idxInDriver))],1,function(x) prod((1+x*cfg$drivers$fitness[idxInDriver]))-1)
-    }else{
-      #browser()
-      driverinfo$fitness=driverinfo$driver1*cfg$drivers$fitness[idxInDriver]
-    }
-    if(nd>ndriver){
-      stop("Assertion error 3")
-      for(i in (ndriver+1):nd){
-        driverinfo[[sprintf("driver%d",i)]]=0
-      }
-    }
-    driverinfo$val=val
-    cfg$info[which(cfg$info$val==cellType),]=driverinfo
-    cfg
-}
-
 
 #' Adds a differentiation events to a simpop. Can either specify relevant tips or randomly generate.
 #' @param tree - simpop.
@@ -686,21 +563,97 @@ make_star_tree=function(N){
   dat
 }
 
-addDriverState=function(tree){
-  n=dim(tree$events)[1]
-  ev=tree$events
-  ev=ev[order(ev$ts),]
-  dstatus=rep(1,length(tree$tip.label))
-  for(i in 1:n){
-    samp=get_samples_in_clade(ev$node[i],tree = tree)
-    dstatus[match(samp,tree$tip.label)]=sprintf("%s:%s",ev$value[i],ev$driverid[i])
+####New driver approach
+#' Adds a driver event to a current simpop
+#' @param tree - simpop.
+#' @param cfg  - List. simpop config.
+#' @param currentCompartment - integer. ID (value) of compartment to be added to.
+#' @export
+addDriverEvent=function(tree,cfg,currentCompartment,fitness){
+  N=length(tree$tip.label)
+  idxt=match(1:N,tree$edge[,2])
+  idxx=which(tree$state[idxt]==currentCompartment)
+  if(length(idxx)==0){
+    stop("Choose a currentCompartment that has non-zero representation in tree!")
   }
-  tree$dstatus=dstatus
-  tree
+  if(abs(fitness)<1e-6){
+    stop("Unable to addDriverEvent with zero fitness")
+  }
+
+  idx=sample(idxx,size = 1,replace = FALSE)
+  celltype=rep(NA,N)
+  celltype[idx]=tree$state[idx]
+
+  ##Find driver ID take the lowest with an empty population
+  idxd=grep("^driver",colnames(cfg$info))
+  d=-1
+  for(i in 1:length(idxd)){
+    if(sum(cfg$info$population[which(cfg$info$val==currentCompartment & cfg$info[,idxd[i]]==1)])==0){
+      d=i
+      break
+    }
+  }
+  #browser()
+  if(d<0){
+    ##We need to add a single new row to cfg$info
+    d=length(idxd)+1
+    cfg$info[[sprintf("driver%d",d)]]=0
+    idxd=grep("^driver",colnames(cfg$info))
+    ##Need to add a driver
+    cfg$drivers=rbind(cfg$drivers,data.frame(val=currentCompartment,driver=d,fitness=fitness))
+  }
+  ##Drop all rows with the existing driver<d>=1
+  idx.drop=which(cfg$info$val==currentCompartment & cfg$info[,idxd[d]]==1)
+  if(length(idx.drop)>0){
+    cfg$info=cfg$info[-idx.drop,]
+  }
+  olddriverid=tree$driverid[idx]
+  idxn=which(cfg$info$id==olddriverid & cfg$info$val==currentCompartment)
+  if(length(idxn)!=1){
+    ##We use the logic that the most recently acquired driver uniquely defines the
+    ##driver "signature". i.e. if driver a is followed by b is followed by c then all
+    ##cells carrying c also carry a and b.
+    stop("Unexpected behaviour")
+  }
+  if(cfg$info$population[idxn]>1){
+    ##We keep the old row and decrement the population by 1
+    cfg$info$population[idxn]=cfg$info$population[idxn]-1
+    ##Add a copy of the old row  with a population of one and driver<d> set to 1
+    row=cfg$info[idxn,]
+    row$population=1
+    row[,idxd[d]]=1
+    row$id=d
+    cfg$info=rbind(cfg$info,row)
+  }else{
+    ##Old row is now redundant - so just repurpose it
+    if(cfg$info$population[idxn]!=1){
+      stop("Unexpected behaviour")
+    }
+    cfg$info$id[idxn]=d
+    cfg$info[idxn,idxd[d]]=1
+  }
+  cfg$drivers$fitness[which(cfg$drivers$val==currentCompartment & cfg$drivers$driver==d)]=fitness
+  cfg=recalculateFitnessV2(cfg,currentCompartment)
+  #}
+  driverid=rep(d,length(celltype))
+  assign_celltype(tree,celltype,driverid,cfg=cfg)
 }
 
-
-#initSimPop(as.integer(Sys.time()),bForce=TRUE)
-
+recalculateFitnessV2=function(cfg,cellType){
+  idx=which(cfg$info$val==cellType)
+  if(length(idx)>0){
+    drivcol=sprintf("driver%d",cfg$drivers$driver[which(cfg$drivers$val==cellType)])
+    fitness=cfg$drivers$fitness[which(cfg$drivers$val==cellType)]
+    #additive
+    if(length(drivcol)==1){
+      cfg$info$fitness[idx]=fitness*cfg$info[idx,drivcol]
+    }else{
+      cfg$info$fitness[idx]=apply(cfg$info[idx,drivcol],1,function(x) sum(fitness*x))
+      #multiplicative
+      cfg$info$fitness[idx]=apply(cfg$info[idx,drivcol],1,function(x) prod((1+fitness*x))-1)
+    }
+  }
+  cfg
+}
 
 

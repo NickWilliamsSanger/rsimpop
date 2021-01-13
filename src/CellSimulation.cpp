@@ -159,7 +159,7 @@ int CellSimulation::run(double stopTime,bool bStopAtEquilibrium,bool bStopIfEmpt
 		currentTime+=rndGen->getExponential(totrate+pop*driverRate);
 		if(driverRate>1e-10){
 			if(rndGen->getUniform()<pop*driverRate/(totrate+pop*driverRate)){
-				printf("Stopping to acquire driver @ %7.2f\n",currentTime);
+				//printf("Stopping to acquire driver @ %7.2f\n",currentTime);
 				status=2;
 				break;
 			}
@@ -175,8 +175,8 @@ int CellSimulation::run(double stopTime,bool bStopAtEquilibrium,bool bStopIfEmpt
 		}
 		if(currentTime/365.0 -lastYear > 1 ){
 			printf("PROGRESS: T=%3.2f year.  population=%d",currentTime/365.0,ntips);
-			if(compartments[1]->nsub>1){
-				printf(":drivers=%d\n",compartments[1]->getSubCounts()[1].second);
+			if (!populationTrace.empty()){
+				printf(":drivers=%d\n",std::get<2>(populationTrace.back()));
 			}else{
 				printf("\n");
 			}
@@ -354,16 +354,17 @@ void CellSimulation::setCompartmentInfoRecursively(shared_ptr<PhyloNode> thisNod
 	//TODO: Replace compartment and drivers by a state triplet compartment_id,sub_compartment_id,ndrivers  ## add
 	int val;
 	int nsub;
-	int drivervals[]={0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576};
+	//int drivervals[]={0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576};
 	//The nodes are allocated to the correct sub-compartment based on a fixed binary expansion scheme [ugly but works]
 	//See cfg$info for
 	if(thisNode->events.size()>0){
 		for(const shared_ptr<Event> & event: thisNode->events){
 			val=event->value;
-			if(event->driverid>20){
-				throw "CellSimulaton:setCompartmentInfoRecursively: Too many drivers!";
-			}
-			driverid+=drivervals[event->driverid];
+			//if(event->driverid>20){
+			//	throw "CellSimulaton:setCompartmentInfoRecursively: Too many drivers!";
+			//}
+			//driverid+=drivervals[event->driverid];
+			driverid=event->driverid;
 			compartment=val;
 			//Could reset driverid if compartment changes..
 		}
@@ -375,7 +376,8 @@ void CellSimulation::setCompartmentInfoRecursively(shared_ptr<PhyloNode> thisNod
 		}
 		nsub=compartments[compartment]->nsub;
 		//Note that we only addNode to a compartment if it is a tip
-		compartments[compartment]->addNode(thisNode,driverid);
+		//compartments[compartment]->addNode(thisNode,driverid);
+		compartments[compartment]->addNode(thisNode,compartments[compartment]->getSub(driverid));
 		(*tip_idx)++;
 		return;
 	}

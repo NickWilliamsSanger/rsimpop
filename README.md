@@ -1,4 +1,4 @@
-12/01/2021
+13/01/2021
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 rsimpop
@@ -42,14 +42,13 @@ print(cfg)
 #> 2   1  0.1   50000 cellType1
 #> 
 #> $info
-#>   val population fitness driver1
-#> 1   0          0     0.0       0
-#> 2   1          0     0.0       0
-#> 3   1          0     0.2       1
+#>   val population fitness id driver1
+#> 1   0          0       0  0       0
+#> 2   1          0       0  0       0
 #> 
 #> $drivers
 #>   val driver fitness
-#> 1   1      1     0.2
+#> 1   1      1       0
 ##Simulate for 2years..
 sp=sim_pop(NULL,params=list(n_sim_days=365*2,b_stop_at_pop_size=1),cfg=cfg)
 #> n_sim_days: 730
@@ -66,9 +65,8 @@ plot(sp)
 <img src="man/figures/README-zygote-1.png" width="100%" />
 
 ``` r
-fulltree1=get_tree_from_simpop(sp)
 ##Subsample tree
-sampledtree1=get_subsampled_tree(fulltree1,100)
+sampledtree1=get_subsampled_tree(sp,100)
 #> Starting checking the validity of tmp...
 #> Found number of tips: n = 101 
 #> Found number of nodes: m = 100 
@@ -125,7 +123,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7fc0a36e7e40>
+#> <bytecode: 0x7fd43f45a450>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -142,7 +140,7 @@ plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tr
 
 Actually this illustrates a potential problem with the outgroup sample still having a acquired mutations because it has a finite duration (0 to 365 days)..
 
-The changes between compartments is specified in a separate dataframe tree$events that is maintained and updated by the simulator.
+The changes between compartments is specified in a separate data.frame, tree$events , that is maintained and updated by the simulator.
 
 ``` r
 t1=plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -167,7 +165,6 @@ cfg=sampledtree1$cfg
 cfg=addCellCompartment(cfg,population = 5e4,rate=1/50,ndriver=1,descr="MyTissue",basefit = 0.3)
 cfg$compartment$rate[2]=1/120  ## change the rate of compartment 1
 sampledtree1a=addDifferentiationEvents(sampledtree1,cfg,2,nEvent=10)
-#> Creating new cell types 2
 print(sampledtree1a$events)
 #>    value driverid node       ts
 #> 1      0        0    1   0.0000
@@ -184,7 +181,7 @@ print(sampledtree1a$events)
 #> 12     2        0  101 131.9789
 ```
 
-Each branch carries its final state...
+Each branch carries its final compartment membership in the "state" vector.
 
 ``` r
 sampledtree1a$color = c("grey","black","red")[sampledtree1a$state+1]
@@ -198,7 +195,7 @@ plot_tree(sampledtree1a,cex.label = 0.5);title("Highlights branches with compart
 #> Rooted; includes branch lengths.
 ```
 
-<img src="man/figures/README-plotcompartment-1.png" width="100%" /> Alternatively can visualise using the built in function *plot\_tree\_events*
+<img src="man/figures/README-plotcompartment-1.png" width="100%" /> The above plot does not capture the situation when compartment changes take place mid-branch - so alternatively we can better visualise the situation using the built in function *plot\_tree\_events*
 
 ``` r
 plot_tree_events(sampledtree1a)
@@ -232,8 +229,7 @@ plot(sp2)
 <img src="man/figures/README-simagain-1.png" width="100%" />
 
 ``` r
-fulltree2=get_tree_from_simpop(sp2)
-sampledtree2=get_subsampled_tree(fulltree2,100)
+sampledtree2=get_subsampled_tree(sp2,100)
 #> Starting checking the validity of tmp...
 #> Found number of tips: n = 101 
 #> Found number of nodes: m = 100 
@@ -343,7 +339,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7fc0a4c99c08>
+#> <bytecode: 0x7fd440be4b40>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -361,11 +357,10 @@ selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitnes
 #> MAX_EVENTS= 10950 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 0 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49968     0.0       0
-#> 3   1          0     0.3       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49967     0.0  0       0
+#> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -374,11 +369,10 @@ selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitnes
 #> MAX_EVENTS= 36500 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 1 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49968     0.0       0
-#> 3   1          0     0.3       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49967     0.0  0       0
+#> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -387,11 +381,10 @@ selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitnes
 #> MAX_EVENTS= 36500 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 2 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49968     0.0       0
-#> 3   1          0     0.3       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49967     0.0  0       0
+#> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -400,26 +393,25 @@ selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitnes
 #> MAX_EVENTS= 36500 
 #> MAX_SIZE= 150003
 print(selsim$cfg$info)
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1       7450     0.0       0
-#> 3   1      42556     0.3       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1       7450     0.0  0       0
+#> 21   1      42556     0.3  1       1
 ```
 
 Plot a sampled tree
 
 ``` r
-seltree=get_tree_from_simpop(selsim)
-seltree100=get_subsampled_tree(seltree,100)
+seltree100=get_subsampled_tree(selsim,100)
 #> Starting checking the validity of tmp...
 #> Found number of tips: n = 101 
 #> Found number of nodes: m = 100 
 #> Done.
 print(seltree100$cfg$info)
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1         10     0.0       0
-#> 3   1         90     0.3       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1         10     0.0  0       0
+#> 21   1         90     0.3  1       1
 plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
@@ -489,7 +481,7 @@ run_transient_selection
 #>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7fc0a89bf240>
+#> <bytecode: 0x7fd44506c5e0>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
@@ -510,11 +502,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 10950 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 0 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49959     0.0       0
-#> 3   1          0     0.5       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49958     0.0  0       0
+#> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -523,11 +514,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 21900 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 1 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49959     0.0       0
-#> 3   1          0     0.5       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49958     0.0  0       0
+#> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -536,11 +526,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 21900 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 2 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49959     0.0       0
-#> 3   1          0     0.5       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49958     0.0  0       0
+#> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -549,11 +538,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 21900 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 3 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49959     0.0       0
-#> 3   1          0     0.5       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49958     0.0  0       0
+#> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -562,11 +550,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 21900 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 4 
-#> Creating new cell types  
-#>   val population fitness driver1
-#> 1   0          1     0.0       0
-#> 2   1      49959     0.0       0
-#> 3   1          0     0.5       1
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      49958     0.0  0       0
+#> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
@@ -582,22 +569,10 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> MAX_EVENTS= 36500 
 #> MAX_SIZE= 150003
 tseltree200=get_subsampled_tree(seltree,200)
-#> Starting checking the validity of tmp...
-#> Found number of tips: n = 201 
-#> Found number of nodes: m = 200 
-#> Done.
+#> Error in get_subsampled_tree(seltree, 200): object 'seltree' not found
 plot_tree_events(get_elapsed_time_tree(tseltree200),cex.label=0)
+#> Error in get_elapsed_time_tree(tseltree200): object 'tseltree200' not found
 ```
-
-<img src="man/figures/README-selectiont-1.png" width="100%" />
-
-    #> 
-    #> Phylogenetic tree with 201 tips and 200 internal nodes.
-    #> 
-    #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
-    #> 
-    #> Rooted; includes branch lengths.
 
 Neutral simulation with a trajectory
 ------------------------------------
@@ -653,7 +628,7 @@ Firstly the user need to create a function that draws a selection coefficient fr
 
 ``` r
 fitnessGen=function(){
-  trials=rexp(100,rate=20)
+  trials=rexp(100,rate=30)
   idx=which(trials>0.05)
   if(length(idx)==0){
     fitnessGen()
@@ -676,28 +651,24 @@ Look at the final per driver counts
 
 ``` r
 print(dps$cfg$info %>% filter(population>0))
-#>    val population    fitness driver1 driver2 driver3 driver4 driver5 driver6
-#> 1    0          1 0.00000000       0       0       0       0       0       0
-#> 2    1      94155 0.00000000       0       0       0       0       0       0
-#> 3    1        846 0.07299852       1       0       0       0       0       0
-#> 4    1       4089 0.08659640       0       1       0       0       0       0
-#> 5    1          5 0.16117321       0       1       1       0       0       0
-#> 6    1        633 0.09133703       0       0       0       1       0       0
-#> 7    1        204 0.08198755       0       0       0       0       1       0
-#> 8    1          3 0.07972675       0       0       0       0       0       1
-#> 9    1          2 0.07057763       0       0       0       0       0       0
-#> 10   1         91 0.08646928       0       0       0       0       0       0
-#>    driver7 driver8 driver9 driver10 driver11 driver12
-#> 1        0       0       0        0        0        0
-#> 2        0       0       0        0        0        0
-#> 3        0       0       0        0        0        0
-#> 4        0       0       0        0        0        0
-#> 5        0       0       0        0        0        0
-#> 6        0       0       0        0        0        0
-#> 7        0       0       0        0        0        0
-#> 8        0       0       0        0        0        0
-#> 9        1       0       0        0        0        0
-#> 10       0       1       0        0        0        0
+#>   val population   fitness id driver1 driver2 driver3 driver4 driver5 driver6
+#> 1   0          1 0.0000000  0       0       0       0       0       0       0
+#> 2   1      29380 0.0000000  0       0       0       0       0       0       0
+#> 3   1      69743 0.1744176  1       1       0       0       0       0       0
+#> 4   1        785 0.1151932  2       0       1       0       0       0       0
+#> 5   1         27 0.1012092  7       0       0       0       0       0       0
+#> 6   1         11 0.2636826  5       1       0       0       0       1       0
+#> 7   1          1 0.2408516  3       1       0       1       0       0       0
+#> 8   1          1 0.2992108  4       1       0       0       1       0       0
+#>   driver7
+#> 1       0
+#> 2       0
+#> 3       0
+#> 4       0
+#> 5       1
+#> 6       0
+#> 7       0
+#> 8       0
 ```
 
 Plot an example sampled tree
@@ -725,6 +696,34 @@ plot_tree_events(dpst)
     plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
+
+    #> 
+    #> Phylogenetic tree with 201 tips and 200 internal nodes.
+    #> 
+    #> Tip labels:
+    #>  s1, s2, s3, s4, s5, s6, ...
+    #> 
+    #> Rooted; includes branch lengths.
+
+Continue simulating the same individual until the age of 90
+
+``` r
+dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessGen)
+```
+
+Note the driver ids are reused once they become extinct so there is no guarantee they are preserved between runs.
+
+``` r
+dpst=get_subsampled_tree(dps90,200)
+#> Starting checking the validity of tmp...
+#> Found number of tips: n = 201 
+#> Found number of nodes: m = 200 
+#> Done.
+dpst=get_elapsed_time_tree(dpst)
+plot_tree_events(dpst)
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
