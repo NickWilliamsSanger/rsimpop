@@ -582,7 +582,7 @@ addDriverEvent=function(tree,cfg,currentCompartment,fitness){
 
   idx=sample(idxx,size = 1,replace = FALSE)
   celltype=rep(NA,N)
-  celltype[idx]=tree$state[idx]
+  celltype[idx]=tree$state[idxt[idx]]
 
   ##Find driver ID take the lowest with an empty population
   idxd=grep("^driver",colnames(cfg$info))
@@ -607,7 +607,7 @@ addDriverEvent=function(tree,cfg,currentCompartment,fitness){
   if(length(idx.drop)>0){
     cfg$info=cfg$info[-idx.drop,]
   }
-  olddriverid=tree$driverid[idx]
+  olddriverid=tree$driverid[idxt[idx]]
   idxn=which(cfg$info$id==olddriverid & cfg$info$val==currentCompartment)
   if(length(idxn)!=1){
     ##We use the logic that the most recently acquired driver uniquely defines the
