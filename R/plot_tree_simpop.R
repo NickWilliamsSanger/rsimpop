@@ -24,7 +24,10 @@ plot_tree_events=function(tree,legpos="topleft",...){
   TT=max(tree$timestamp)
   duration=ifelse(is.na(idx.child),TT-tree$tBirth,tree$tBirth[idx.child]-tree$tBirth)
   df=data.frame(uval=unique(sort(sprintf("%s:%s",events$value,events$driverid))),stringsAsFactors = FALSE)
-  df$col=c(RColorBrewer::brewer.pal(9,"Set1"),RColorBrewer::brewer.pal(12,"Set3"))[1:length(df$uval)]
+  cols=c(RColorBrewer::brewer.pal(9,"Set1"))#,RColorBrewer::brewer.pal(12,"Set3"))
+  df$col=c(cols,cols,cols,cols)[1:length(df$uval)]
+  df$pch=rep(c(19,17,15,25),each=length(cols))[1:length(df$uval)]
+  print(df)
   events=events %>% mutate(key=sprintf("%s:%s",value,driverid)) %>% left_join(df,by=c("key"="uval"))
   events$idx=match(events$node,tree$edge[,2])
   fracs=lapply(1:N,function(x) c())
@@ -34,7 +37,7 @@ plot_tree_events=function(tree,legpos="topleft",...){
     idx=events$idx[i]
     info=get_edge_info(NULL,tree,thisnode)
     frac=(events$ts[i]-tree$tBirth[events$idx[i]])/duration[events$idx[i]]
-    points(x=info$x,y=info$yt-frac*(info$yt-info$yb),pch=19,col=events$col[i],cex=2)
+    points(x=info$x,y=info$yt-frac*(info$yt-info$yb),pch=events$pch[i],col=events$col[i],cex=2)
     fracs[[idx]]=c(fracs[[idx]],frac)
     cols[[idx]]=c(cols[[idx]],events$col[i])
     kids=get_all_node_children(thisnode,tree)
@@ -52,7 +55,7 @@ plot_tree_events=function(tree,legpos="topleft",...){
 
   }
   if(!is.null(legpos)){
-  legend(legpos,legend=df$uval,col=df$col,pch=19,cex=1)
+  legend(legpos,legend=df$uval,col=df$col,pch=df$pch,cex=1)
   }
   tree
 }
