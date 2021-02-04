@@ -189,7 +189,12 @@ get_all_node_children=function(node,tree){
   offspring
 }
 
-
+#' Gets node id of immediate descendents of the specified nodes.
+#'
+#' Will be empty for terminal nodes.
+#' @param node id of specified node
+#' @param tree phylo.
+#' @export
 get_node_children=function(node,tree){
   tree$edge[which(tree$edge[,1]==node),2]
 }
