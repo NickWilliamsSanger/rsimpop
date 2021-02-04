@@ -174,22 +174,20 @@ Multiple drivers can be generated at a specified rate so the waiting time betwee
 
 Firstly the user need to create a function that draws a selection coefficient from a distibution. The simulator isn't optimised to maintain 100s of variants at once - so it is suggested that a minumum selective coefficient be specified (say 0.05) and driver incidence made correspondingly rarer.
 ```{r}
-fitnessGen=function(){
-  trials=rexp(100,rate=30)
-  idx=which(trials>0.05)
-  if(length(idx)==0){
-    fitnessGen()
-  }else{
-    trials[idx[1]]
-  }
+##Function to generate exponential distribution based fitness
+require("truncdist")
+genExpFitness=function(fitness_threshold,rate){
+  function() rtrunc(n=1,a=fitness_threshold, b=Inf,"exp",rate=rate)
 }
-hist(sapply(1:100000,function(i) exp(fitnessGen())-1),breaks=seq(0,100,0.01),xlim=c(0,1),xlab="Selective Coefficient Per Year",main="Sampled Selective Cofficent Distribution")
+fitnessExpFn=genExpFitness(fitness_threshold=0.08,rate=40)
+hist(sapply(1:100000,function(i) exp(fitnessExpFn())-1),breaks=seq(0,100,0.01),xlim=c(0,1),xlab="Selective Coefficient Per Year",main="Sampled Selective Cofficent Distribution")
 ```
+
 
 Now run the sim:
 
 ```{r,message=FALSE,results=FALSE}
-dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 80,fitness=fitnessGen,drivers_per_year = 1)
+dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 80,fitness=fitnessExpFn,drivers_per_year = 1)
 ```
 
 Look at the final per driver counts
@@ -205,14 +203,14 @@ dpst=get_subsampled_tree(dps,200)
 dpst=get_elapsed_time_tree(dpst)
 plot_tree_events(dpst)
 dpst=get_elapsed_time_tree(dpst,mutrateperdivision = 1,backgroundrate = 19/365)
-plot_tree_events(dpst)
+plot_tree_events(dpst,fmode=1)
 ```
 
 Continue simulating the same individual until the age of 90
 ```{r}
-dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessGen)
+dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessExpFn)
 ```
-Note the driver ids are reused once they become extinct so there is no guarantee they are preserved between runs.
+Note the driver ids are reused once they become extinct so there is no guarantee that they are preserved between runs.
 ```{r, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 dpst=get_subsampled_tree(dps90,200)
 dpst=get_elapsed_time_tree(dpst)
