@@ -132,7 +132,7 @@ run_selection_sim=function( initial_division_rate=0.1,
 #'  }
 #' }
 #' dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 30,fitness=fitnessGen,drivers_per_year = 5)
-#' 
+#'
 run_driver_process_sim=function( initial_division_rate=0.1,
                                   final_division_rate=1/365,
                                   target_pop_size=1e5,
@@ -433,4 +433,16 @@ continue_driver_process_sim=function(insim,nyears,fitnessGen){
       stop("too many iterations!")
     }
   }
+}
+
+
+
+#' Converts annual growth selection coefficient to per division selection coefficient
+#' @param S input annual selection coefficient
+#' @param divrate division rate parameter specified in divisions per day.
+#' @return s : per division selection coefficient to be supplied to rsimpop
+#' @export
+#'
+convert_annualS_to_s=function(S,divrate){
+  log(1 + S)/(365 * divrate)
 }

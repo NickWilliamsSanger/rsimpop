@@ -1,4 +1,4 @@
-13/01/2021
+04/02/2021
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 rsimpop
@@ -123,7 +123,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7f811de1e8a8>
+#> <bytecode: 0x7f8d7537a3f8>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -207,6 +207,19 @@ plot_tree_events(sampledtree1a)
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  2:0 #4DAF4A  19
+    #>    value driverid node       ts fitness key     col pch idx
+    #> 1      0        0    1   0.0000       0 0:0 #E41A1C  19   1
+    #> 2      1        0  103   0.0000       0 1:0 #377EB8  19   2
+    #> 3      2        0    6 131.9789       0 2:0 #4DAF4A  19  15
+    #> 4      2        0   31 131.9789       0 2:0 #4DAF4A  19  65
+    #> 5      2        0   32 131.9789       0 2:0 #4DAF4A  19  67
+    #> 6      2        0   42 131.9789       0 2:0 #4DAF4A  19  89
+    #> 7      2        0   50 131.9789       0 2:0 #4DAF4A  19 102
+    #> 8      2        0   66 131.9789       0 2:0 #4DAF4A  19 135
+    #> 9      2        0   91 131.9789       0 2:0 #4DAF4A  19 185
+    #> 10     2        0   92 131.9789       0 2:0 #4DAF4A  19 186
+    #> 11     2        0   99 131.9789       0 2:0 #4DAF4A  19 197
+    #> 12     2        0  101 131.9789       0 2:0 #4DAF4A  19 200
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -247,6 +260,17 @@ plot_tree_events(sampledtree2,cex.label = 0.5)
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  2:0 #4DAF4A  19
+    #>    value driverid node       ts fitness key     col pch idx
+    #> 1      0        0    1   0.0000       0 0:0 #E41A1C  19   1
+    #> 2      1        0  103   0.0000       0 1:0 #377EB8  19   2
+    #> 3      2        0  111 131.9789       0 2:0 #4DAF4A  19  10
+    #> 4      2        0  122 131.9789       0 2:0 #4DAF4A  19  33
+    #> 5      2        0  153 131.9789       0 2:0 #4DAF4A  19  94
+    #> 6      2        0  167 131.9789       0 2:0 #4DAF4A  19 125
+    #> 7      2        0  183 131.9789       0 2:0 #4DAF4A  19 157
+    #> 8      2        0  184 131.9789       0 2:0 #4DAF4A  19 161
+    #> 9      2        0  188 131.9789       0 2:0 #4DAF4A  19 171
+    #> 10     2        0  195 131.9789       0 2:0 #4DAF4A  19 184
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -347,7 +371,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7f8120750e90>
+#> <bytecode: 0x7f8d767097e0>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -425,6 +449,10 @@ plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch L
 #> 1  0:0 #E41A1C  19
 #> 2  1:0 #377EB8  19
 #> 3  1:1 #4DAF4A  19
+#>   value driverid node   ts fitness key     col pch idx
+#> 1     0        0    1    0     0.0 0:0 #E41A1C  19   1
+#> 2     1        0  103    0     0.0 1:0 #377EB8  19   2
+#> 3     1        1  109 5475     0.3 1:1 #4DAF4A  19   8
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -443,6 +471,10 @@ tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: B
 #> 1  0:0 #E41A1C  19
 #> 2  1:0 #377EB8  19
 #> 3  1:1 #4DAF4A  19
+#>   value driverid node   ts fitness key     col pch idx
+#> 1     0        0    1    0     0.0 0:0 #E41A1C  19   1
+#> 2     1        0  103    0     0.0 1:0 #377EB8  19   2
+#> 3     1        1  109 5475     0.3 1:1 #4DAF4A  19   8
 ```
 
 <img src="man/figures/README-seltree-2.png" width="100%" />
@@ -455,6 +487,10 @@ plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branc
 #> 1  0:0 #E41A1C  19
 #> 2  1:0 #377EB8  19
 #> 3  1:1 #4DAF4A  19
+#>   value driverid node   ts fitness key     col pch idx
+#> 1     0        0    1    0     0.0 0:0 #E41A1C  19   1
+#> 2     1        0  103    0     0.0 1:0 #377EB8  19   2
+#> 3     1        1  109 5475     0.3 1:1 #4DAF4A  19   8
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -473,6 +509,10 @@ plot_tree_events(seltree100m2,cex.label = 0.5);title("Selection Based Tree: Bran
 #> 1  0:0 #E41A1C  19
 #> 2  1:0 #377EB8  19
 #> 3  1:1 #4DAF4A  19
+#>   value driverid node   ts fitness key     col pch idx
+#> 1     0        0    1    0     0.0 0:0 #E41A1C  19   1
+#> 2     1        0  103    0     0.0 1:0 #377EB8  19   2
+#> 3     1        1  109 5475     0.3 1:1 #4DAF4A  19   8
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -505,7 +545,7 @@ run_transient_selection
 #>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7f8123ab1390>
+#> <bytecode: 0x7f8d7a28e9b0>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
@@ -651,16 +691,13 @@ Multiple drivers can be generated at a specified rate so the waiting time betwee
 Firstly the user need to create a function that draws a selection coefficient from a distibution. The simulator isn't optimised to maintain 100s of variants at once - so it is suggested that a minumum selective coefficient be specified (say 0.05) and driver incidence made correspondingly rarer.
 
 ``` r
-fitnessGen=function(){
-  trials=rexp(100,rate=30)
-  idx=which(trials>0.05)
-  if(length(idx)==0){
-    fitnessGen()
-  }else{
-    trials[idx[1]]
-  }
+##Function to generate exponential distribution based fitness
+require("truncdist")
+genExpFitness=function(fitness_threshold,rate){
+  function() rtrunc(n=1,a=fitness_threshold, b=Inf,"exp",rate=rate)
 }
-hist(sapply(1:100000,function(i) exp(fitnessGen())-1),breaks=seq(0,100,0.01),xlim=c(0,1),xlab="Selective Coefficient Per Year",main="Sampled Selective Cofficent Distribution")
+fitnessExpFn=genExpFitness(fitness_threshold=0.08,rate=40)
+hist(sapply(1:100000,function(i) exp(fitnessExpFn())-1),breaks=seq(0,100,0.01),xlim=c(0,1),xlab="Selective Coefficient Per Year",main="Sampled Selective Cofficent Distribution")
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
@@ -668,29 +705,31 @@ hist(sapply(1:100000,function(i) exp(fitnessGen())-1),breaks=seq(0,100,0.01),xli
 Now run the sim:
 
 ``` r
-dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 80,fitness=fitnessGen,drivers_per_year = 1)
+dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 80,fitness=fitnessExpFn,drivers_per_year = 1)
 ```
 
 Look at the final per driver counts
 
 ``` r
 print(dps$cfg$info %>% filter(population>0))
-#>   val population   fitness id driver1 driver2 driver3 driver4 driver5 driver6
-#> 1   0          1 0.0000000  0       0       0       0       0       0       0
-#> 2   1      29381 0.0000000  0       0       0       0       0       0       0
-#> 3   1      69744 0.1744176  1       1       0       0       0       0       0
-#> 4   1        788 0.1151932  2       0       1       0       0       0       0
-#> 5   1         32 0.1012092  7       0       0       0       0       0       0
-#> 6   1          1 0.2408516  3       1       0       1       0       0       0
-#> 7   1          1 0.2992108  4       1       0       0       1       0       0
-#>   driver7
-#> 1       0
-#> 2       0
-#> 3       0
-#> 4       0
-#> 5       1
-#> 6       0
-#> 7       0
+#>   val population    fitness id driver1 driver2 driver3 driver4 driver5 driver6
+#> 1   0          1 0.00000000  0       0       0       0       0       0       0
+#> 2   1      18751 0.00000000  0       0       0       0       0       0       0
+#> 3   1         38 0.08735544  1       1       0       0       0       0       0
+#> 4   1        510 0.09996090  5       0       0       0       0       1       0
+#> 5   1      80678 0.22311912  6       0       0       0       0       0       1
+#> 6   1         57 0.08152371  3       0       0       1       0       0       0
+#> 7   1          5 0.08194996  8       0       0       0       0       0       0
+#> 8   1         22 0.30380595  7       0       0       0       0       0       1
+#>   driver7 driver8
+#> 1       0       0
+#> 2       0       0
+#> 3       0       0
+#> 4       0       0
+#> 5       0       0
+#> 6       0       0
+#> 7       0       1
+#> 8       1       0
 ```
 
 Plot an example sampled tree
@@ -710,8 +749,13 @@ plot_tree_events(dpst)
     #>   uval     col pch
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
+    #> 3  1:5 #4DAF4A  19
+    #> 4  1:6 #984EA3  19
+    #>   value driverid node        ts   fitness key     col pch idx
+    #> 1     0        0    1     0.000 0.0000000 0:0 #E41A1C  19   1
+    #> 2     1        0  203     0.000 0.0000000 1:0 #377EB8  19   2
+    #> 3     1        5   23  4981.978 0.0999609 1:5 #4DAF4A  19  46
+    #> 4     1        6  239 10259.551 0.2231191 1:6 #984EA3  19  71
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -720,15 +764,20 @@ plot_tree_events(dpst)
     #> 
     #> Rooted; includes branch lengths.
     dpst=get_elapsed_time_tree(dpst,mutrateperdivision = 1,backgroundrate = 19/365)
-    plot_tree_events(dpst)
+    plot_tree_events(dpst,fmode=1)
 
 <img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
 
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
+    #>       uval     col pch
+    #> 1 0:0:0.00 #E41A1C  19
+    #> 2 1:0:0.00 #377EB8  19
+    #> 3 1:5:0.10 #4DAF4A  19
+    #> 4 1:6:0.22 #984EA3  19
+    #>   value driverid node        ts   fitness      key     col pch idx
+    #> 1     0        0    1     0.000 0.0000000 0:0:0.00 #E41A1C  19   1
+    #> 2     1        0  203     0.000 0.0000000 1:0:0.00 #377EB8  19   2
+    #> 3     1        5   23  4981.978 0.0999609 1:5:0.10 #4DAF4A  19  46
+    #> 4     1        6  239 10259.551 0.2231191 1:6:0.22 #984EA3  19  71
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -740,10 +789,10 @@ plot_tree_events(dpst)
 Continue simulating the same individual until the age of 90
 
 ``` r
-dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessGen)
+dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessExpFn)
 ```
 
-Note the driver ids are reused once they become extinct so there is no guarantee they are preserved between runs.
+Note the driver ids are reused once they become extinct so there is no guarantee that they are preserved between runs.
 
 ``` r
 dpst=get_subsampled_tree(dps90,200)
@@ -760,7 +809,13 @@ plot_tree_events(dpst)
     #>   uval     col pch
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
+    #> 3  1:6 #4DAF4A  19
+    #> 4  1:7 #984EA3  19
+    #>   value driverid node       ts    fitness key     col pch idx
+    #> 1     0        0    1     0.00 0.00000000 0:0 #E41A1C  19   1
+    #> 2     1        0  203     0.00 0.00000000 1:0 #377EB8  19   2
+    #> 3     1        6  207 10259.55 0.22311912 1:6 #4DAF4A  19   8
+    #> 4     1        7  193 26573.88 0.08068683 1:7 #984EA3  19 388
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 

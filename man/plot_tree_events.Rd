@@ -4,12 +4,14 @@
 \alias{plot_tree_events}
 \title{Plots simpop events on a the tree}
 \usage{
-plot_tree_events(tree, legpos = "topleft", ...)
+plot_tree_events(tree, legpos = "topleft", fmode = 0, ...)
 }
 \arguments{
 \item{tree}{phylo/simpop}
 
 \item{legpos}{legend position}
+
+\item{fmode}{0=no selection coeff annotation;1=per driver selection coeff;2=composite driver selection coeff}
 
 \item{...}{<\code{\link[rlang:dyn-dots]{dynamic-dots}}> . Parameters that are passed to plot_tree}
 }
@@ -24,5 +26,5 @@ cfg=getDefaultConfig(target_pop_size =5e4,rate=0.1)
 params=list(n_sim_days=2*365,b_stop_at_pop_size=1,b_stop_if_empty=0)
 growthphase=sim_pop(NULL,params=params,cfg)
 stree=get_subsampled_tree(growthphase,50)
-plot_tree_events(stree)
+plot_tree_events(stree,fmode=1)
 }

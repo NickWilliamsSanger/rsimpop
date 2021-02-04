@@ -650,7 +650,7 @@ recalculateFitnessV2=function(cfg,cellType){
     }else{
       cfg$info$fitness[idx]=apply(cfg$info[idx,drivcol],1,function(x) sum(fitness*x))
       #multiplicative
-      cfg$info$fitness[idx]=apply(cfg$info[idx,drivcol],1,function(x) prod((1+fitness*x))-1)
+      ##cfg$info$fitness[idx]=apply(cfg$info[idx,drivcol],1,function(x) prod((1+fitness*x))-1)
     }
   }
   cfg

@@ -1,5 +1,10 @@
 # CHANGES
 
+## 2.0.4
+
+* Switched from multiplicative to additive selection model for compound drivers
+* Added parameter to plot_tree_events to show selection coefficient on legend.
+
 ## 2.0.3
 
 * Fixed bug in enhanced handling of drivers.
