@@ -20,10 +20,6 @@ rsimpop
 
 This package facilitates the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
 
-### TODO
-
-Setting parameters is somewhat convoluted in this early version. The next step will be to wrap up the parameter setting in and S3 R class RSimpopParam.
-
 Simulate from Zygote for 1 year and subsample tree
 --------------------------------------------------
 
@@ -123,7 +119,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7f9aa96fab68>
+#> <bytecode: 0x7f91585bf368>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -378,7 +374,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7f9aad071b50>
+#> <bytecode: 0x7f915b051950>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -616,7 +612,7 @@ run_transient_selection
 #>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7f9aa7eae858>
+#> <bytecode: 0x7f9156818938>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
