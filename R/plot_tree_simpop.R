@@ -29,7 +29,7 @@ plot_tree_events=function (tree, legpos = "topleft", fmode=0,...)
   events$fitness=tree$cfg$drivers$fitness[match(events$driver,tree$cfg$drivers$driver)]
   events$fitness[is.na(events$fitness)]=0
   if(fmode==2){
-    warn("WARNING: fmode=2 under development gives wrong results for multiple drivers on single branch")
+    warning("WARNING: fmode=2 under development gives wrong results for multiple drivers on single branch")
     s=sapply(1:length(events$driverid),function(i){
       if(events$driverid[i]>0){
 
@@ -51,9 +51,13 @@ plot_tree_events=function (tree, legpos = "topleft", fmode=0,...)
                        events$driverid)
   }
   df = data.frame(uval = unique(sort(events$key)), stringsAsFactors = FALSE)
-  cols = c(RColorBrewer::brewer.pal(9, "Set1"))
-  df$col = c(cols, cols, cols, cols)[1:length(df$uval)]
-  df$pch = rep(c(19, 17, 15, 25), each = length(cols))[1:length(df$uval)]
+  
+  cols=c(RColorBrewer::brewer.pal(9,"Set1"))
+  df$col=rep(cols,26)[1:length(df$uval)]
+  df$pch=rep(c(19,17,15,25,setdiff(0:25,c(19,17,15,25))),each=length(cols))[1:length(df$uval)]
+  print(df)
+  
+  
   print(df)
   events = events %>% left_join(df, by = c(key = "uval"))
 

@@ -43,10 +43,8 @@ public:
 	int totalpop;
 	bool active=true;
 	bool atEquilibrium=false;
-	//int ntips;
 	void addNode(shared_ptr<PhyloNode> node,int subid);
 	double getTotalRate();
-//double getTotalRate(double alpha);
 	double getTotalDivisionRate();
 	void setRates();
 	void setNumNonEmptyIndices();

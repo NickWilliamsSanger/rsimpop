@@ -36,17 +36,11 @@ devtools::install_github("NickWilliamsSanger/rsimpop")
 ## rsimpop
 This package facilitates the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
 
-
-### TODO
-
-Setting parameters is somewhat convoluted in this early version.  The next step will be to wrap up the parameter setting in and S3 R class RSimpopParam.
-
-
 ## Simulate from Zygote for 1 year and subsample tree
 ```{r zygote,results=TRUE, dev.args=list(pointsize=8),fig.height=5,fig.width=10}
 
 ##Initialise with seed (R and rsimpop separately)
-SEED=37774321
+SEED=37774323
 initSimPop(SEED,bForce = TRUE)
 ##Setup a single compartment with a target pop of 50K
 cfg=getDefaultConfig(target_pop_size  = 5e4,ndriver = 1,basefit = 0.2,rate = 0.1)
