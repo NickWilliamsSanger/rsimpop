@@ -149,17 +149,12 @@ double CellCompartment::getTotalRate(){
 		throw "getTotalRate: UnexpectedNegative";
 
 	}
-	return mTotalDivRate+mTotalDeathRate;
-	/**
-	if(!active){
-		return 0.0;
-	}
-	double tot=getTotalDivisionRate();
 	if(atEquilibrium){
-		return 2*tot;//Deaths are equal....  Come back to this...
+	  return mTotalDivRate+mTotalDeathRate;
 	}else{
-		return tot;
-	}*/
+	  //Following means we have pure exponential growth until equilibrium
+	  return mTotalDivRate;
+	}
 }
 
 void CellCompartment::setRates(){
