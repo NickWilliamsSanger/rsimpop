@@ -138,11 +138,11 @@ double CellCompartment::getTotalRate(){
 		throw "getTotalRate: UnexpectedNegative";
 
 	}
-	if(atEquilibrium){
+  if(atEquilibrium){
 	  return mTotalDivRate+mTotalDeathRate;
-	}else{
+  }else{
 	  //Following means we have pure exponential growth until equilibrium
-	  return mTotalDivRate;
+    return mTotalDivRate;
 	}
 }
 
