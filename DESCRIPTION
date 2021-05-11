@@ -1,6 +1,6 @@
 Package: rsimpop
 Title: Simulates Cellular Evolution using a Continous Time Birth Death Model
-Version: 2.0.4
+Version: 2.1.0
 Authors@R: 
     person(given = "Nicholas",
            family = "Williams",
