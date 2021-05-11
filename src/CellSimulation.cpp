@@ -431,15 +431,10 @@ void CellCompartment::doEvent(CellSimulation & sim){
 		throw "Attempting to doEvent on empty compartment!";
 	}
 	if(atEquilibrium && rndGen->getUniform() < mTotalDeathRate/(mTotalDeathRate+mTotalDivRate)){
-		//printf("compartment:%d die..%d\n",totalpop);
-
 		// death/symmetric differentiation is the same across the board..
-		//for(int i=0;i<nsub;i++){
 		for(int i=0;i<numNonEmptyCompartments;i++){
-			//prob[i]=subCompartments[i].size();
 			prob[i]=subCompartments[nonEmptyCompartmentIndices[i]].size();
 		}
-		//int i=rndGen->sample(nsub,prob,false);
 		int ii=rndGen->sample(numNonEmptyCompartments,prob,false);
 		int i=nonEmptyCompartmentIndices[ii];
 		int sz=subCompartments[i].size();
@@ -457,15 +452,8 @@ void CellCompartment::doEvent(CellSimulation & sim){
 		sim.recycle(node);
 
 	}else{
-		//printf("divide.. %d\n",totalpop);
-		//for(int i=0;i<nsub;i++){
-		//	prob[i]=(1+mFitness[i])*subCompartments[i].size();
-		//}
-
-		//int i=rndGen->sample(nsub,prob,false);
 		int ii=0;
 		for(int i=0;i<numNonEmptyCompartments;i++){
-			//prob[i]=subCompartments[i].size();
 			ii=nonEmptyCompartmentIndices[i];
 			prob[i]=(1+mFitness[ii])*subCompartments[ii].size();
 		}
