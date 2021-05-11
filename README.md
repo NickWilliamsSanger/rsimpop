@@ -26,7 +26,7 @@ Simulate from Zygote for 1 year and subsample tree
 ``` r
 
 ##Initialise with seed (R and rsimpop separately)
-SEED=37774321
+SEED=37774323
 initSimPop(SEED,bForce = TRUE)
 #> NULL
 ##Setup a single compartment with a target pop of 50K
@@ -119,7 +119,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7f91585bf368>
+#> <bytecode: 0x7fc324f0c288>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -165,16 +165,16 @@ print(sampledtree1a$events)
 #>    value driverid node       ts
 #> 1      0        0    1   0.0000
 #> 2      1        0  103   0.0000
-#> 3      2        0    6 133.2902
-#> 4      2        0   31 133.2902
-#> 5      2        0   32 133.2902
-#> 6      2        0   42 133.2902
-#> 7      2        0   50 133.2902
-#> 8      2        0   66 133.2902
-#> 9      2        0   91 133.2902
-#> 10     2        0   92 133.2902
-#> 11     2        0   99 133.2902
-#> 12     2        0  101 133.2902
+#> 3      2        0    4 135.4454
+#> 4      2        0    8 135.4454
+#> 5      2        0   11 135.4454
+#> 6      2        0   14 135.4454
+#> 7      2        0   38 135.4454
+#> 8      2        0   54 135.4454
+#> 9      2        0   80 135.4454
+#> 10     2        0   81 135.4454
+#> 11     2        0   90 135.4454
+#> 12     2        0   96 135.4454
 ```
 
 Each branch carries its final compartment membership in the "state" vector.
@@ -210,16 +210,16 @@ plot_tree_events(sampledtree1a)
     #>    value driverid node       ts fitness key     col pch idx
     #> 1      0        0    1   0.0000       0 0:0 #E41A1C  19   1
     #> 2      1        0  103   0.0000       0 1:0 #377EB8  19   2
-    #> 3      2        0    6 133.2902       0 2:0 #4DAF4A  19  15
-    #> 4      2        0   31 133.2902       0 2:0 #4DAF4A  19  65
-    #> 5      2        0   32 133.2902       0 2:0 #4DAF4A  19  67
-    #> 6      2        0   42 133.2902       0 2:0 #4DAF4A  19  89
-    #> 7      2        0   50 133.2902       0 2:0 #4DAF4A  19 102
-    #> 8      2        0   66 133.2902       0 2:0 #4DAF4A  19 135
-    #> 9      2        0   91 133.2902       0 2:0 #4DAF4A  19 185
-    #> 10     2        0   92 133.2902       0 2:0 #4DAF4A  19 186
-    #> 11     2        0   99 133.2902       0 2:0 #4DAF4A  19 197
-    #> 12     2        0  101 133.2902       0 2:0 #4DAF4A  19 200
+    #> 3      2        0    4 135.4454       0 2:0 #4DAF4A  19  11
+    #> 4      2        0    8 135.4454       0 2:0 #4DAF4A  19  16
+    #> 5      2        0   11 135.4454       0 2:0 #4DAF4A  19  24
+    #> 6      2        0   14 135.4454       0 2:0 #4DAF4A  19  31
+    #> 7      2        0   38 135.4454       0 2:0 #4DAF4A  19  79
+    #> 8      2        0   54 135.4454       0 2:0 #4DAF4A  19 110
+    #> 9      2        0   80 135.4454       0 2:0 #4DAF4A  19 161
+    #> 10     2        0   81 135.4454       0 2:0 #4DAF4A  19 165
+    #> 11     2        0   90 135.4454       0 2:0 #4DAF4A  19 182
+    #> 12     2        0   96 135.4454       0 2:0 #4DAF4A  19 193
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -235,7 +235,7 @@ sp2=sim_pop(sampledtree1a,params=list(n_sim_days=365*10),cfg=sampledtree1a$cfg)
 #> n_sim_days: 3650
 #> b_stop_if_empty: 0
 #> b_stop_at_pop_size: 0
-#> maxt: 133.290249809457
+#> maxt: 135.445371986415
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 7300 
 #> MAX_SIZE= 300003
@@ -267,13 +267,13 @@ plot_tree_events(sampledtree2,cex.label = 0.5)
     #>   value driverid node       ts fitness key     col pch idx
     #> 1     0        0    1   0.0000       0 0:0 #E41A1C  19   1
     #> 2     1        0  103   0.0000       0 1:0 #377EB8  19   2
-    #> 3     2        0  106 133.2902       0 2:0 #4DAF4A  19   6
-    #> 4     2        0  118 133.2902       0 2:0 #4DAF4A  19  25
-    #> 5     2        0  127 133.2902       0 2:0 #4DAF4A  19  44
-    #> 6     2        0   58 133.2902       0 2:0 #4DAF4A  19 119
-    #> 7     2        0   73 133.2902       0 2:0 #4DAF4A  19 147
-    #> 8     2        0  191 133.2902       0 2:0 #4DAF4A  19 177
-    #> 9     2        0  197 133.2902       0 2:0 #4DAF4A  19 190
+    #> 3     2        0  107 135.4454       0 2:0 #4DAF4A  19   6
+    #> 4     2        0  122 135.4454       0 2:0 #4DAF4A  19  37
+    #> 5     2        0  137 135.4454       0 2:0 #4DAF4A  19  68
+    #> 6     2        0  144 135.4454       0 2:0 #4DAF4A  19  78
+    #> 7     2        0  170 135.4454       0 2:0 #4DAF4A  19 133
+    #> 8     2        0  188 135.4454       0 2:0 #4DAF4A  19 169
+    #> 9     2        0  196 135.4454       0 2:0 #4DAF4A  19 186
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
@@ -374,7 +374,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7f915b051950>
+#> <bytecode: 0x7fc3273dac40>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -387,99 +387,87 @@ selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitnes
 #> n_sim_days: 5475
 #> b_stop_if_empty: 0
 #> b_stop_at_pop_size: 0
-#> maxt: 206.929696237002
+#> maxt: 240.331789311844
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 10950 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 0 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
+#> MAX_SIZE= 150003 
 #> No driver found: tries= 1 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
+#> MAX_SIZE= 150003 
 #> No driver found: tries= 2 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
+#> MAX_SIZE= 150003 
 #> No driver found: tries= 3 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
+#> MAX_SIZE= 150003 
 #> No driver found: tries= 4 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
+#> MAX_SIZE= 150003 
 #> No driver found: tries= 5 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
+#> 2    1      49997     0.0  0       0
 #> 21   1          1     0.3  1       1
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
+#> maxt: 5475.00896292192
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051 
-#> No driver found: tries= 6 
-#>    val population fitness id driver1
-#> 1    0          1     0.0  0       0
-#> 2    1      50015     0.0  0       0
-#> 21   1          1     0.3  1       1
-#> n_sim_days: 18250
-#> b_stop_if_empty: 1
-#> b_stop_at_pop_size: 0
-#> maxt: 5475.0085546303
-#> driver_rate_per_cell_per_day: 0
-#> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150051
+#> MAX_SIZE= 150003
 print(selsim$cfg$info)
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      25091     0.0  0       0
-#> 21   1      24919     0.3  1       1
+#> 2    1      30761     0.0  0       0
+#> 21   1      19199     0.3  1       1
 ```
 
 Plot a sampled tree
@@ -493,8 +481,8 @@ seltree100=get_subsampled_tree(selsim,100)
 print(seltree100$cfg$info)
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1         43     0.0  0       0
-#> 21   1         57     0.3  1       1
+#> 2    1         57     0.0  0       0
+#> 21   1         43     0.3  1       1
 plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
 #>   uval     col pch
 #> 1  0:0 #E41A1C  19
@@ -507,7 +495,7 @@ plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch L
 #>   value driverid node       ts fitness key     col pch idx
 #> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
 #> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  114 5475.009     0.3 1:1 #4DAF4A  19  21
+#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -533,7 +521,7 @@ tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: B
 #>   value driverid node       ts fitness key     col pch idx
 #> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
 #> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  114 5475.009     0.3 1:1 #4DAF4A  19  21
+#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 ```
 
 <img src="man/figures/README-seltree-2.png" width="100%" />
@@ -553,7 +541,7 @@ plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branc
 #>   value driverid node       ts fitness key     col pch idx
 #> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
 #> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  114 5475.009     0.3 1:1 #4DAF4A  19  21
+#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -579,7 +567,7 @@ plot_tree_events(seltree100m2,cex.label = 0.5);title("Selection Based Tree: Bran
 #>   value driverid node       ts fitness key     col pch idx
 #> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
 #> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  114 5475.009     0.3 1:1 #4DAF4A  19  21
+#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
@@ -612,7 +600,7 @@ run_transient_selection
 #>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7f9156818938>
+#> <bytecode: 0x7fc324cd0448>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
@@ -628,29 +616,41 @@ tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driv
 #> n_sim_days: 5475
 #> b_stop_if_empty: 0
 #> b_stop_at_pop_size: 0
-#> maxt: 242.961806240678
+#> maxt: 204.673380003515
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 10950 
 #> MAX_SIZE= 150003 
 #> No driver found: tries= 0 
 #>    val population fitness id driver1
 #> 1    0          1     0.0  0       0
-#> 2    1      50007     0.0  0       0
+#> 2    1      50008     0.0  0       0
 #> 21   1          1     0.5  1       1
 #> n_sim_days: 10950
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 5475.00163830473
+#> maxt: 5475.00064593374
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 21900 
-#> MAX_SIZE= 150027 
+#> MAX_SIZE= 150030 
+#> No driver found: tries= 1 
+#>    val population fitness id driver1
+#> 1    0          1     0.0  0       0
+#> 2    1      50008     0.0  0       0
+#> 21   1          1     0.5  1       1
+#> n_sim_days: 10950
+#> b_stop_if_empty: 1
+#> b_stop_at_pop_size: 0
+#> maxt: 5475.00064593374
+#> driver_rate_per_cell_per_day: 0
+#> MAX_EVENTS= 21900 
+#> MAX_SIZE= 150030 
 #> n_sim_days: 18250
 #> b_stop_if_empty: 1
 #> b_stop_at_pop_size: 0
-#> maxt: 10950.0163894142
+#> maxt: 10950.0037261434
 #> driver_rate_per_cell_per_day: 0
 #> MAX_EVENTS= 36500 
-#> MAX_SIZE= 150033
+#> MAX_SIZE= 150078
 tseltree200=get_subsampled_tree(seltree,200)
 #> Error in get_subsampled_tree(seltree, 200): object 'seltree' not found
 plot_tree_events(get_elapsed_time_tree(tseltree200),cex.label=0)
@@ -733,24 +733,24 @@ Look at the final per driver counts
 print(dps$cfg$info %>% filter(population>0))
 #>    val population    fitness id driver1 driver2 driver3 driver4 driver5 driver6
 #> 1    0          1 0.00000000  0       0       0       0       0       0       0
-#> 2    1      93501 0.00000000  0       0       0       0       0       0       0
-#> 24   1       1931 0.08531173  4       0       0       0       1       0       0
-#> 23   1       1963 0.08381639  3       0       0       1       0       0       0
-#> 21   1       1145 0.08249858  1       1       0       0       0       0       0
-#> 26   1       1358 0.13747127  6       0       0       0       0       0       1
-#> 27   1         10 0.11068882  7       0       0       0       0       0       0
-#> 25   1         55 0.08412702  5       0       0       0       0       1       0
-#> 29   1         13 0.08776029  9       0       0       0       0       0       0
-#>    driver7 driver8 driver9 driver10 driver11
-#> 1        0       0       0        0        0
-#> 2        0       0       0        0        0
-#> 24       0       0       0        0        0
-#> 23       0       0       0        0        0
-#> 21       0       0       0        0        0
-#> 26       0       0       0        0        0
-#> 27       1       0       0        0        0
-#> 25       0       0       0        0        0
-#> 29       0       0       1        0        0
+#> 2    1      93866 0.00000000  0       0       0       0       0       0       0
+#> 25   1        263 0.08728257  5       0       0       0       0       1       0
+#> 21   1       3311 0.08732078  1       1       0       0       0       0       0
+#> 22   1       2209 0.17231742  2       0       1       0       0       0       0
+#> 24   1        306 0.09552229  4       0       0       0       1       0       0
+#> 23   1          7 0.08731113  3       0       0       1       0       0       0
+#> 29   1         44 0.08031019  9       0       0       0       0       0       0
+#> 26   1          9 0.10452876  6       0       0       0       0       0       1
+#>    driver7 driver8 driver9 driver10
+#> 1        0       0       0        0
+#> 2        0       0       0        0
+#> 25       0       0       0        0
+#> 21       0       0       0        0
+#> 22       0       0       0        0
+#> 24       0       0       0        0
+#> 23       0       0       0        0
+#> 29       0       0       1        0
+#> 26       0       0       0        0
 ```
 
 Plot an example sampled tree
@@ -771,26 +771,20 @@ plot_tree_events(dpst)
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  1:1 #4DAF4A  19
-    #> 4  1:3 #984EA3  19
+    #> 4  1:2 #984EA3  19
     #> 5  1:4 #FF7F00  19
-    #> 6  1:6 #FFFF33  19
-    #> 7  1:7 #A65628  19
     #>   uval     col pch
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  1:1 #4DAF4A  19
-    #> 4  1:3 #984EA3  19
+    #> 4  1:2 #984EA3  19
     #> 5  1:4 #FF7F00  19
-    #> 6  1:6 #FFFF33  19
-    #> 7  1:7 #A65628  19
     #>   value driverid node        ts    fitness key     col pch idx
     #> 1     0        0    1     0.000 0.00000000 0:0 #E41A1C  19   1
     #> 2     1        0  203     0.000 0.00000000 1:0 #377EB8  19   2
-    #> 3     1        4   83  1408.522 0.08531173 1:4 #FF7F00  19 169
-    #> 4     1        3  395  5468.646 0.08381639 1:3 #984EA3  19 385
-    #> 5     1        1   11 10746.820 0.08249858 1:1 #4DAF4A  19  30
-    #> 6     1        6  243 15072.018 0.13747127 1:6 #FFFF33  19  73
-    #> 7     1        7  119 17726.699 0.11068882 1:7 #A65628  19 241
+    #> 3     1        1  400  9642.521 0.08732078 1:1 #4DAF4A  19 396
+    #> 4     1        2  220 15716.871 0.17231742 1:2 #984EA3  19  29
+    #> 5     1        4   42 20278.195 0.09552229 1:4 #FF7F00  19  84
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -806,27 +800,21 @@ plot_tree_events(dpst)
     #>       uval     col pch
     #> 1 0:0:0.00 #E41A1C  19
     #> 2 1:0:0.00 #377EB8  19
-    #> 3 1:1:0.08 #4DAF4A  19
-    #> 4 1:3:0.08 #984EA3  19
-    #> 5 1:4:0.09 #FF7F00  19
-    #> 6 1:6:0.14 #FFFF33  19
-    #> 7 1:7:0.11 #A65628  19
+    #> 3 1:1:0.09 #4DAF4A  19
+    #> 4 1:2:0.17 #984EA3  19
+    #> 5 1:4:0.10 #FF7F00  19
     #>       uval     col pch
     #> 1 0:0:0.00 #E41A1C  19
     #> 2 1:0:0.00 #377EB8  19
-    #> 3 1:1:0.08 #4DAF4A  19
-    #> 4 1:3:0.08 #984EA3  19
-    #> 5 1:4:0.09 #FF7F00  19
-    #> 6 1:6:0.14 #FFFF33  19
-    #> 7 1:7:0.11 #A65628  19
+    #> 3 1:1:0.09 #4DAF4A  19
+    #> 4 1:2:0.17 #984EA3  19
+    #> 5 1:4:0.10 #FF7F00  19
     #>   value driverid node        ts    fitness      key     col pch idx
     #> 1     0        0    1     0.000 0.00000000 0:0:0.00 #E41A1C  19   1
     #> 2     1        0  203     0.000 0.00000000 1:0:0.00 #377EB8  19   2
-    #> 3     1        4   83  1408.522 0.08531173 1:4:0.09 #FF7F00  19 169
-    #> 4     1        3  395  5468.646 0.08381639 1:3:0.08 #984EA3  19 385
-    #> 5     1        1   11 10746.820 0.08249858 1:1:0.08 #4DAF4A  19  30
-    #> 6     1        6  243 15072.018 0.13747127 1:6:0.14 #FFFF33  19  73
-    #> 7     1        7  119 17726.699 0.11068882 1:7:0.11 #A65628  19 241
+    #> 3     1        1  400  9642.521 0.08732078 1:1:0.09 #4DAF4A  19 396
+    #> 4     1        2  220 15716.871 0.17231742 1:2:0.17 #984EA3  19  29
+    #> 5     1        4   42 20278.195 0.09552229 1:4:0.10 #FF7F00  19  84
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
@@ -859,29 +847,20 @@ plot_tree_events(dpst)
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  1:1 #4DAF4A  19
-    #> 4  1:3 #984EA3  19
+    #> 4  1:2 #984EA3  19
     #> 5  1:4 #FF7F00  19
-    #> 6  1:5 #FFFF33  19
-    #> 7  1:6 #A65628  19
-    #> 8  1:7 #F781BF  19
     #>   uval     col pch
     #> 1  0:0 #E41A1C  19
     #> 2  1:0 #377EB8  19
     #> 3  1:1 #4DAF4A  19
-    #> 4  1:3 #984EA3  19
+    #> 4  1:2 #984EA3  19
     #> 5  1:4 #FF7F00  19
-    #> 6  1:5 #FFFF33  19
-    #> 7  1:6 #A65628  19
-    #> 8  1:7 #F781BF  19
     #>   value driverid node        ts    fitness key     col pch idx
     #> 1     0        0    1     0.000 0.00000000 0:0 #E41A1C  19   1
     #> 2     1        0  203     0.000 0.00000000 1:0 #377EB8  19   2
-    #> 3     1        4  288  1408.522 0.08531173 1:4 #FF7F00  19 167
-    #> 4     1        3  397  5468.646 0.08381639 1:3 #984EA3  19 389
-    #> 5     1        1  218 10746.820 0.08249858 1:1 #4DAF4A  19  22
-    #> 6     1        6  243 15072.018 0.13747127 1:6 #A65628  19  74
-    #> 7     1        7  139 17726.699 0.11068882 1:7 #F781BF  19 278
-    #> 8     1        5  136 24380.881 0.08412702 1:5 #FFFF33  19 273
+    #> 3     1        1  380  9642.521 0.08732078 1:1 #4DAF4A  19 355
+    #> 4     1        2  216 15716.871 0.17231742 1:2 #984EA3  19  22
+    #> 5     1        4  250 20278.195 0.09552229 1:4 #FF7F00  19  94
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 

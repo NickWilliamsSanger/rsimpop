@@ -34,8 +34,6 @@ CellCompartment::CellCompartment(int id,
 			active=true;
 		//	printf("Compartment %d is active\n",id);
 		}
-		//setRates();
-		//printInfo();
 	}
 
 CellCompartment::~CellCompartment() {
@@ -85,7 +83,6 @@ void CellCompartment::checkPop(){
 }
 
 void CellCompartment::printInfo(){
-
 	printf("id=%d\nrate=%5.4f\ntargetPop=%d\nmTotalDeathRate=%7.6f\nmTotalDivRate=%7.6f\n%s\n",id,mDivisionRate,mTargetPopSize,mTotalDeathRate,mTotalDivRate,active ? "ACTIVE" : "INACTIVE");
 	for(int k=0;k<nsub;k++){
 		printf("fitness[%d]=%5.4f,count[%d]=%lu\n",k,mFitness[k],k,subCompartments[k].size());
@@ -116,7 +113,6 @@ vector<pair<bool,int>> CellCompartment::getSubCounts(){
 				k++;
 	}
 	return counts;
-
 }
 
 
@@ -131,13 +127,6 @@ double CellCompartment::getTotalDivisionRate(){
 		ii=nonEmptyCompartmentIndices[i];
 		tot+=mDivisionRate*(1+mFitness[ii])*subCompartments[ii].size();
 	}
-	/*
-	for(i=0;i<nsub;i++){
-		tot+=mDivisionRate*(1+mFitness[i])*subCompartments[i].size();
-	}
-    */
-
-
 	return tot;
 }
 
