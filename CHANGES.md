@@ -1,5 +1,13 @@
 # CHANGES
 
+## 2.1.1
+
+* Added missing 2.1.0  changes to CHANGES.md
+
+## 2.1.0
+
+* Removal of redundant tree plotting functions
+
 ## 2.0.4
 
 * Switched from multiplicative to additive selection model for compound drivers
