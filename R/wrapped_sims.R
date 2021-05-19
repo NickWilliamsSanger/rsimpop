@@ -150,7 +150,7 @@ run_driver_process_sim=function( initial_division_rate=0.1,
   ##driverdt=cumsum(rexp(1000,drivers_per_year/365))
   dpcpd=(drivers_per_year/365)/target_pop_size
 
-  k=1
+  k=0
   nsd=nyears*365
   cfg=getDefaultConfig(1e5,rate=initial_division_rate,ndriver=1,basefit = 0)
   params=list(n_sim_days=nsd,##This is the longest that the simulation will continue
@@ -174,6 +174,11 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     growthphase=combine_simpops(growthphase,gpk)
   }
   tree0=get_tree_from_simpop(growthphase)
+  if(max(tree0$timestamp)>=nyears*365){
+    tree0$n_introduced_drivers=k
+    tree0
+    return(tree0)
+  }
   tree0$cfg$compartment$rate[2]=final_division_rate
   tree0$cfg$compartment$popsize[2]=target_pop_size
   years=nyears
@@ -188,12 +193,15 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     browser()
   }
   while(TRUE){
-    k=k+1
+    
     ## Deal with end of last sim and next driver being too close together. Very rarely kicks in.
     ##params[["n_sim_days"]]=min(nyears*365,max(driverdt[k],max(tree0$timestamp)+0.1)) ##years of simulation
     if(max(tree0$timestamp)>=nyears*365){
+      tree0$n_introduced_drivers=k
+      tree0
       return(tree0)
     }
+    k=k+1
     #browser()
     tree0=addDriverEvent(tree0,tree0$cfg,1,fitness=fitnessGen())
     tmp2=tree0
@@ -204,10 +212,11 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
       browser()
     }
-    if(k>10000){
+    if(k>100000){
       stop("too many iterations!")
     }
   }
+  
 
 }
 
@@ -331,14 +340,14 @@ run_neutral_trajectory=function(simpop,initial_division_rate,trajectory){
   if(any(trajectory$target_pop_size>20e6)){
     stop("Supplied population too high; should be less than 20e6")
   }
-
+  params=list(n_sim_days=trajectory$ts[1],##This is the longest that the simulation will continue
+              b_stop_at_pop_size=1,
+              b_stop_if_empty=0
+  )
   if(is.null(simpop)){
     cfg=getDefaultConfig(target_pop_size = trajectory$target_pop_size[1],rate = initial_division_rate,basefit = 0,ndriver = 1)
 
-    params=list(n_sim_days=trajectory$ts[1],##This is the longest that the simulation will continue
-                b_stop_at_pop_size=1,
-                b_stop_if_empty=0
-    )
+    
     sp=sim_pop(NULL,params=params,cfg,b_verbose = FALSE)
     idx=1
   }else{
@@ -412,7 +421,7 @@ continue_driver_process_sim=function(insim,nyears,fitnessGen){
   if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
     browser()
   }
-  k=1
+  k=0
   while(TRUE){
     k=k+1
     ## Deal with end of last sim and next driver being too close together. Very rarely kicks in.
@@ -429,10 +438,12 @@ continue_driver_process_sim=function(insim,nyears,fitnessGen){
     if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
       browser()
     }
-    if(k>10000){
+    if(k>100000){
       stop("too many iterations!")
     }
   }
+  ND=ifelse(is.null(tree0$n_introduced_drivers),0,tree0$n_introduced_drivers)
+  tree0$n_introduced_drivers=ND+k
 }
 
 
