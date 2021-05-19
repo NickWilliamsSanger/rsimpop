@@ -11,36 +11,33 @@
 #include <string>
 using namespace std;
 CellCompartment::CellCompartment(int id,
-		int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID):
-		id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate){
-		nsub=fitnessID.size();
-		for(int i=0;i<nsub;i++){
-			//printf("sec=%d\n",fitnessID[i].second);
-			//printf("first=%4.5f\n",fitnessID[i].first);
-			idxByID[fitnessID[i].second]=i;
-			mFitness.push_back(fitnessID[i].first);
-			vector<shared_ptr<PhyloNode>> tmp;
-			subCompartments.push_back(tmp);
-			bSubActive.push_back(false);
-		}
-		totalpop=0;
-		rndGen=RandomNumberGenerator::getInstance();
-		//Get random number generator
-		prob=new double[nsub];
-		if(mDivisionRate < -0.001){
-			active=false;
-		//	printf("Compartment %d is not active\n",id);
-		}else{
-			active=true;
-		//	printf("Compartment %d is active\n",id);
-		}
-	}
+                                 int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID):
+  id(id),mTargetPopSize(targetPopSize),mDivisionRate(divisionRate){
+  nsub=fitnessID.size();
+  for(int i=0;i<nsub;i++){
+    idxByID[fitnessID[i].second]=i;
+    mFitness.push_back(fitnessID[i].first);
+    vector<shared_ptr<PhyloNode>> tmp;
+    subCompartments.push_back(tmp);
+    bSubActive.push_back(false);
+  }
+  totalpop=0;
+  rndGen=RandomNumberGenerator::getInstance();
+  //Get random number generator
+  prob=new double[nsub];
+  if(mDivisionRate < -0.001){
+    active=false;
+  }else{
+    active=true;
+  }
+}
 
 CellCompartment::~CellCompartment() {
 
 	//printf("destroying %d",id);
 
 }
+
 //double rrexp(double lambda){
 //  return exp_rand()/lambda;
 //}
@@ -138,11 +135,11 @@ double CellCompartment::getTotalRate(){
 		throw "getTotalRate: UnexpectedNegative";
 
 	}
-  if(atEquilibrium){
-	  return mTotalDivRate+mTotalDeathRate;
-  }else{
+	if(atEquilibrium){
+		return mTotalDivRate+mTotalDeathRate;
+	}else{
 	  //Following means we have pure exponential growth until equilibrium
-    return mTotalDivRate;
+		return mTotalDivRate;
 	}
 }
 
