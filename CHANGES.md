@@ -1,5 +1,9 @@
 # CHANGES
 
+## 2.1.2
+
+* run_neutral_trajectory now works when initialised with a non-null simpop object.
+
 ## 2.1.1
 
 * Added missing 2.1.0  changes to CHANGES.md
