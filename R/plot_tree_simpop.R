@@ -55,14 +55,9 @@ plot_tree_events=function (tree, legpos = "topleft", fmode=0,...)
   cols=c(RColorBrewer::brewer.pal(9,"Set1"))
   df$col=rep(cols,26)[1:length(df$uval)]
   df$pch=rep(c(19,17,15,25,setdiff(0:25,c(19,17,15,25))),each=length(cols))[1:length(df$uval)]
-  print(df)
-  
-  
-  print(df)
   events = events %>% left_join(df, by = c(key = "uval"))
 
   events$idx = match(events$node, tree$edge[, 2])
-  print(events)
   fracs = lapply(1:N, function(x) c())
   cols = lapply(1:N, function(x) c())
 
