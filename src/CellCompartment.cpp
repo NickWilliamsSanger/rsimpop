@@ -177,6 +177,7 @@ void CellCompartment::doEvent(CellSimulation & sim);
 void CellCompartment::addDriver(CellSimulation & sim,double ts,double fitness){
 	checkPop();
 	setNumNonEmptyIndices();
+	double prob[nsub];
 	for(int i=0;i<numNonEmptyCompartments;i++){
 		prob[i]=subCompartments[nonEmptyCompartmentIndices[i]].size();
 	}
