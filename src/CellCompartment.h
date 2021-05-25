@@ -23,7 +23,9 @@ private:
 	RandomNumberGenerator * rndGen;
 	double * prob;
 	vector<int> nonEmptyCompartmentIndices;
+	vector<int> emptyCompartmentIndices;
 	int numNonEmptyCompartments;
+	int numEmptyCompartments;
 	std::map<int, int> idxByID;
 
 
@@ -62,6 +64,7 @@ public:
 	vector<pair<bool,int>> getSubCounts();
 	void printInfo();
     //friend ostream & operator << (ostream &out, const CellCompartment &c);
+	void addDriver(CellSimulation & sim,double ts,double fitness);
 };
 //ostream & operator << (ostream &out, const CellCompartment &c);
 #endif /* CELLCOMPARTMENT_H_ */

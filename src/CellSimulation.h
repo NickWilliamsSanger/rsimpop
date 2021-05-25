@@ -49,6 +49,11 @@ public:
 	void die(shared_ptr<PhyloNode>);
 	pair<shared_ptr<PhyloNode>,shared_ptr<PhyloNode>> divide(shared_ptr<PhyloNode> node);
 	void deleteTips(std::set<int> tipsToDelete);
+	void setCurrentDriverID(int id);
+	/**
+	 * Retrieves current driver ID and increments.
+	 */
+	int incrementCurrentDriverID();
 
 private:
 
@@ -76,6 +81,7 @@ private:
 	int ntips;
 	int ndrivers;
 	double driverRate;
+	int driverID=1;
 	//double * timeStamp;
 	//int * popTrace;
 	vector<tuple<double,int,int>> populationTrace;;///TODO implement at compartment/driver level

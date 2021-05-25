@@ -33,28 +33,21 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 		if(it==fitnessByCompartment.end()){
 			vector<std::pair<double,int>> tmp;
 			fitnessByCompartment[compinfoval[i]]=tmp;
-			//printf("adding %d\n",compinfoval[i]);
 		}
 		fitnessByCompartment[compinfoval[i]].push_back(std::pair<double,int>(compinfofitness[i],driverid[i]));
 
 	}
-	//printf("collected fitness\n");
 	for(int i=0;i<*ncompartment;i++){
-		//printf("comp: %d %d %d\n",compartmentval[i],i,*ncompartment);
 		if(compartmentval[i]!=i){
 			printf("Should be contiguous %d %d\n",compartmentval[i],i);
 			throw "compartment should have contiguous ordered value 0..n";
 		}
-		//printf("i=%d",i);
-		//printf("val=%d\n",compartmentval[i]);
 		cellCompartments.push_back(std::make_shared<CellCompartment>(CellCompartment(i,
 				compartmentsize[i],
 				compartmentrate[i],
 				fitnessByCompartment[compartmentval[i]]
 				)));
-		//printf("done %d\n",compartmentval[i]);
 	}
-	//printf("initialiased cellcomps\n");
 }
 
 void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventvalOut,int * eventdriveridOut,double * eventtsOut,int * eventnodeOut){
@@ -70,17 +63,17 @@ void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventv
 
 void populateCompartmentInfo(const CellSimulation & sim,int ncomp,int * nCompPop){
 	int k=0;
-			for(const auto & compartment : sim.compartments){
-				vector<pair<bool,int>> counts=compartment->getSubCounts();
-				for(const auto & count: counts ){
-					if(k< ncomp){
-						nCompPop[k++]=count.second;
-					}else{
-						throw "populateCompartmentInfo:Too many compartments!";
-					}
-				}
-				//compartment->printInfo();
+	for(const auto & compartment : sim.compartments){
+		vector<pair<bool,int>> counts=compartment->getSubCounts();
+		for(const auto & count: counts ){
+			if(k< ncomp){
+				nCompPop[k++]=count.second;
+			}else{
+				throw "populateCompartmentInfo:Too many compartments!";
 			}
+		}
+				//compartment->printInfo();
+	}
 }
 void initRSimPop(int * seed){
 	RandomNumberGenerator::createInstance(*seed);

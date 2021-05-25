@@ -6,9 +6,11 @@
  */
 
 #include "CellCompartment.h"
+#include "CellSimulation.h"
 //#include <R.h>
 #include <Rmath.h>
 #include <string>
+#include "Event.h"
 using namespace std;
 CellCompartment::CellCompartment(int id,
                                  int targetPopSize,double divisionRate,std::vector<std::pair<double,int>> fitnessID):
@@ -59,20 +61,29 @@ void CellCompartment::addNode(shared_ptr<PhyloNode> node,int subid){
 
 void CellCompartment::setNumNonEmptyIndices(){
 	//printf("In setNumNonEmptyIndices\n");
+	nonEmptyCompartmentIndices.clear();
+	emptyCompartmentIndices.clear();
 	for(int i=0;i<subCompartments.size();i++){
 		if(subCompartments[i].size()>0){
 			nonEmptyCompartmentIndices.push_back(i);
+		}else{
+			emptyCompartmentIndices.push_back(i);
 		}
 	}
 	numNonEmptyCompartments=nonEmptyCompartmentIndices.size();
+	numEmptyCompartments=emptyCompartmentIndices.size();
+
 
 }
 
 void CellCompartment::checkPop(){
 	int chk=0;
+	int k=0;
 	for(const vector<shared_ptr<PhyloNode>> & subCompartment : subCompartments){
+		// printf("%d=%d,",k++,subCompartment.size());
 			 chk+=subCompartment.size();
 	}
+    //printf("::totals=%d %d\n",chk,totalpop);
 	if(chk!=totalpop){
 		printf("pop mismatch:%d != %d\n",chk,totalpop);
 		throw "CellCompartment::checkPop: inconsistency in population tracking";
@@ -161,3 +172,55 @@ void CellCompartment::setRates(){
 /* Moved to CellSimulation.cpp
 void CellCompartment::doEvent(CellSimulation & sim);
 */
+
+
+void CellCompartment::addDriver(CellSimulation & sim,double ts,double fitness){
+	checkPop();
+	setNumNonEmptyIndices();
+	for(int i=0;i<numNonEmptyCompartments;i++){
+		prob[i]=subCompartments[nonEmptyCompartmentIndices[i]].size();
+	}
+	int ii=rndGen->sample(numNonEmptyCompartments,prob,false);
+	int i=nonEmptyCompartmentIndices[ii];
+	int sz=subCompartments[i].size();
+	int k=rndGen->sample(sz);
+	shared_ptr<PhyloNode> node=subCompartments[i][k];
+	//Node ID of event only matters when provided externally.
+	int driverid=sim.incrementCurrentDriverID();
+	Event event(-1,ts,id,driverid);
+	shared_ptr<Event> thisEvent=std::make_shared<Event>(event);
+	node->addEvent(thisEvent);
+	//Create a new sub-compartment for this node and remove from old compartment..
+
+	fitness=fitness+mFitness[i];//Additive model is HARD coded here.
+	if(numEmptyCompartments==0){
+		subCompartments.push_back(vector<shared_ptr<PhyloNode>>());
+		subCompartments[nsub].push_back(node);
+		mFitness.push_back(fitness);
+		idxByID[driverid]=sz;
+		bSubActive.push_back(true);
+		nsub++;
+		printf("adding new compartment: %d fit=%3.2f\n",nsub,fitness);
+	}else{
+		int l=emptyCompartmentIndices[0];
+		subCompartments[l].push_back(node);
+		mFitness[l]=fitness;
+		bSubActive[l]=true;
+		idxByID[driverid]=l;
+		printf("recycling compartment: %d fit=%3.2f\n",nsub,fitness);
+	}
+    //Remove from vector in old compartment
+	if(k<sz-1){
+		subCompartments[i][k]=subCompartments[i][sz-1];
+	}
+	subCompartments[i].pop_back();
+	//checkPop();
+	//Finally reset nonEmptyCompartments etc
+	setNumNonEmptyIndices();
+	checkPop();
+
+}
+
+
+
+

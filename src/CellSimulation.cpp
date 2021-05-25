@@ -161,7 +161,16 @@ int CellSimulation::run(double stopTime,bool bStopAtEquilibrium,bool bStopIfEmpt
 			if(rndGen->getUniform()<pop*driverRate/(totrate+pop*driverRate)){
 				//printf("Stopping to acquire driver @ %7.2f\n",currentTime);
 				status=2;
-				break;
+				if(true){
+					//C has control of driver intro
+					//TODO remove hard coding of 1 here
+					printf("Adding driver @ %3.2f\n",currentTime/365.0);
+					compartments[1]->addDriver(*this,currentTime,0.01);
+					continue;
+				}else{
+					//R has control of driver introduction
+					break;
+				}
 			}
 		}
 		for(i=0;i<ncomp;i++){
@@ -351,19 +360,11 @@ void CellSimulation::setCompartmentInfo(){
  * Assigns nodes to compartments
  */
 void CellSimulation::setCompartmentInfoRecursively(shared_ptr<PhyloNode> thisNode,int compartment,int driverid,int * tip_idx,int ntip){
-	//TODO: Replace compartment and drivers by a state triplet compartment_id,sub_compartment_id,ndrivers  ## add
 	int val;
 	int nsub;
-	//int drivervals[]={0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536,131072,262144,524288,1048576};
-	//The nodes are allocated to the correct sub-compartment based on a fixed binary expansion scheme [ugly but works]
-	//See cfg$info for
 	if(thisNode->events.size()>0){
 		for(const shared_ptr<Event> & event: thisNode->events){
 			val=event->value;
-			//if(event->driverid>20){
-			//	throw "CellSimulaton:setCompartmentInfoRecursively: Too many drivers!";
-			//}
-			//driverid+=drivervals[event->driverid];
 			driverid=event->driverid;
 			compartment=val;
 			//Could reset driverid if compartment changes..
@@ -477,4 +478,17 @@ void CellCompartment::doEvent(CellSimulation & sim){
 			atEquilibrium=true;
 	}
 	setRates();
+}
+
+
+void CellSimulation::setCurrentDriverID(int id){
+	driverID=id;
+}
+/**
+* Retrieves current driver ID and increments.
+*/
+int CellSimulation::incrementCurrentDriverID(){
+	int tmp=driverID;
+	driverID++;
+	return tmp;
 }
