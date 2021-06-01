@@ -1,9 +1,9 @@
 ### This file contains wrapped calls to the simulator that serve as examples
-
+#' @title 
 #' Runs a single compartment/single driver scenario
-#'
-#' The driver is subject to stochastic extinction and so is repeatedly dropped in until it "takes".
-#' The prevailing state when the driver is introduced is saved and reinstated with each attempted introduction.
+#' @description 
+#' run_selection_sim models the evolution of a population of cells with a selective advantage given to a randomly
+#' chosen cell, once the population size reaches the specified equilibrium size.
 #' @param initial_division_rate - Rate of symmetric cell division during development
 #' @param final_division_rate - Rate of symmetric cell division once population equilibrium is reached.
 #' @param target_pop_size - Size of target population
@@ -16,6 +16,10 @@
 #' @export
 #' @examples
 #' selsim=run_selection_sim(0.05,1/365,target_pop_size = 5e4,nyears = 50,fitness=0.3)
+#' @details 
+#' The selective advantage is introduced as a driver event. The driver is subject to stochastic 
+#' extinction and so is repeatedly dropped in until it "takes".The prevailing state when the driver is introduced is
+#' saved and reinstated with each attempted introduction.
 run_selection_sim=function( initial_division_rate=0.1,
                             final_division_rate=1/365,
                             target_pop_size=1e5,
@@ -24,28 +28,28 @@ run_selection_sim=function( initial_division_rate=0.1,
                             fitness=0.2, ## relative fitness
                             minprop=0.001,
                             mindriver=1,
-                            maxtry=40
-){
+                            maxtry=40)
+{
   cfg=getDefaultConfig(target_pop_size,rate=initial_division_rate,ndriver=1,basefit = fitness)
-  params=list(n_sim_days=nyears_driver_acquisition*365,
-              b_stop_at_pop_size=1,
-              b_stop_if_empty=0
-  )
+  params=list(n_sim_days=nyears_driver_acquisition*365,b_stop_at_pop_size=1,b_stop_if_empty=0)
+  
   growthphase=sim_pop(NULL,params=params,cfg)
   ndivkeep=0
   mdivkeep=0
   gdivkeep=0
-  tree0=get_tree_from_simpop(growthphase)
-  if(growthphase$status==0){
+  tree0=get_tree_from_simpop(growthphase)  #modifying the tips labels (s1,s2,...,sN); N beeing the #tips
+  if(growthphase$status==0)
+  {
     ##We've exited before maturity and need to add driver now..
     tree1=tree0
     params[["n_sim_days"]]=nyears*365 ##years of simulation
     params[["b_stop_if_empty"]]=1
-
+    
     dc=0
     tries=0
     tree1_tmp=tree1
-    while(dc<max(minprop*target_pop_size,mindriver) ){
+    while(dc<max(minprop*target_pop_size,mindriver) )
+    {
       if(tries>=maxtry){
         return(NULL)
       }
@@ -55,35 +59,37 @@ run_selection_sim=function( initial_division_rate=0.1,
       print(tree1_tmp$cfg$info)
       params[["b_stop_at_pop_size"]]=1
       adult2=sim_pop(tree1_tmp,params=params,tree1_tmp$cfg)
-      adult2a=combine_simpops(growthphase,adult2)
-      tree2=get_tree_from_simpop(adult2a)
+      # adult2a=combine_simpops(growthphase,adult2)
+      tree2=get_tree_from_simpop(adult2)  #tree2=get_tree_from_simpop(adult2a)
       params[["b_stop_at_pop_size"]]=0
       cfg=tree2$cfg
       cfg$compartment$rate[2]=final_division_rate
       cfg$compartment$popsize[2]=target_pop_size
-      adult2=sim_pop(tree2,params=params,cfg)
-      adult2=combine_simpops(adult2a,adult2)
-      dc=adult2$cfg$info$population[3]
+      adult3=sim_pop(tree2,params=params,cfg)  #adult2=sim_pop(tree2,params=params,cfg)
+      # adult2=combine_simpops(adult2a,adult2)
+      dc=adult3$cfg$info$population[3]  #dc=adult2$cfg$info$population[3]
     }
-  }else{
+  }
+  else
+  {
     gdivkeep=mean(nodeHeights(tree0)[which(tree0$edge[,2]<=length(tree0$tip.label)),2])
     cfg$compartment$rate[2]=final_division_rate
     cfg$compartment$popsize[2]=target_pop_size
-    years=nyears
+    # years=nyears
     params[["n_sim_days"]]=nyears_driver_acquisition*365 ##years of simulation
     params[["b_stop_at_pop_size"]]=0 ## So it doesn't stop simulating immediately
     adult1=sim_pop(tree0,params=params,cfg)
-    adult1=combine_simpops(growthphase,adult1)
+    # adult1=combine_simpops(growthphase,adult1)
     tree1=get_tree_from_simpop(adult1)
     params[["n_sim_days"]]=nyears*365 ##years of simulation
     params[["b_stop_if_empty"]]=1
     dc=0
     tries=0
     tree1_tmp=tree1
-    while(dc<max(minprop*target_pop_size,mindriver) ){
-      if(tries>=maxtry){
+    while(dc<max(minprop*target_pop_size,mindriver) )
+    {
+      if(tries>=maxtry)  #driver could not be added 
         return(NULL)
-      }
       cat("No driver found: tries=",tries,"\n")
       tries=tries+1
       tree1_tmp=addDriverEvent(tree1,tree1$cfg,1,fitness=fitness)
@@ -97,7 +103,7 @@ run_selection_sim=function( initial_division_rate=0.1,
     }
     adult2=combine_simpops(adult1,adult2)
   }
-
+  
   fulltree=get_tree_from_simpop(adult2)
   fulltree$tries=tries
   fulltree$ndivkeep=ndivkeep
@@ -108,7 +114,7 @@ run_selection_sim=function( initial_division_rate=0.1,
 
 #' Runs a multiple driver scenario
 #'
-#' The user specifies the rate at which drivers are introduced and the distribution the selective coefficients are drawn from.
+#' The user specifies the rate at which drivers are introduced and the distribution of the selective coefficients are drawn from.
 #' Note that unlike in \code{\link{run_selection_sim}} the drivers are allowed to stochastically die out.
 #' The drivers at the specified rate with the gap between successive introductions exponentially distributed.
 #' @param initial_division_rate - Rate of symmetric cell division during development
@@ -134,13 +140,13 @@ run_selection_sim=function( initial_division_rate=0.1,
 #' dps=run_driver_process_sim(0.1,1/(2*190),target_pop_size = 1e5,nyears = 30,fitness=fitnessGen,drivers_per_year = 5)
 #'
 run_driver_process_sim=function( initial_division_rate=0.1,
-                                  final_division_rate=1/365,
-                                  target_pop_size=1e5,
-                                  drivers_per_year=0.1,
-                                  nyears=40,
-                                  fitnessGen=function(){0},
-                                  bForceReseed=FALSE,offset=0
-){
+                                 final_division_rate=1/365,
+                                 target_pop_size=1e5,
+                                 drivers_per_year=0.1,
+                                 nyears=40,
+                                 fitnessGen=function(){0},
+                                 bForceReseed=FALSE,offset=0)
+{
   if(bForceReseed){
     delay=(offset/10 +1)
     Sys.sleep(delay)
@@ -149,7 +155,7 @@ run_driver_process_sim=function( initial_division_rate=0.1,
   }
   ##driverdt=cumsum(rexp(1000,drivers_per_year/365))
   dpcpd=(drivers_per_year/365)/target_pop_size
-
+  
   k=0
   nsd=nyears*365
   cfg=getDefaultConfig(1e5,rate=initial_division_rate,ndriver=1,basefit = 0)
@@ -171,7 +177,7 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     }
     growthphase=addDriverEvent(growthphase,growthphase$cfg,currentCompartment = 1,fitness=fitnessGen())
     gpk=get_tree_from_simpop(sim_pop(growthphase,params=params,growthphase$cfg))
-    growthphase=combine_simpops(growthphase,gpk)
+    growthphase= gpk # growthphase=combine_simpops(growthphase,gpk)
   }
   tree0=get_tree_from_simpop(growthphase)
   if(max(tree0$timestamp)>=nyears*365){
@@ -187,7 +193,7 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     return(tree0)
   }
   adult=sim_pop(tree0,params=params,tree0$cfg)
-  adult=combine_simpops(tree0,adult)
+  # adult=combine_simpops(tree0,adult)
   tree0=get_tree_from_simpop(adult)
   if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
     browser()
@@ -206,7 +212,7 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     tree0=addDriverEvent(tree0,tree0$cfg,1,fitness=fitnessGen())
     tmp2=tree0
     adult=sim_pop(tree0,params=params,tree0$cfg,b_verbose = FALSE)
-    tree0=combine_simpops(tree0,adult)
+    tree0=adult# tree0=combine_simpops(tree0,adult)
     #tree0=get_tree_from_simpop(adult)
     #print(tree0$cfg$info %>% dplyr::filter(population>0))
     if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){
@@ -217,13 +223,14 @@ run_driver_process_sim=function( initial_division_rate=0.1,
     }
   }
   
-
+  
 }
 
 #' Runs a single compartment/single driver scenario with transient selection
 #'
-#' The driver is subject to stochastic extinction and so is repeatedly dropped in until it "takes".
-#' The prevailing state when the driver is introduced is saved and reinstated with each attempted introduction.
+#' @description 
+#' run_transient_selection models the evolution of a population of cells with a transient selective advantage given to a randomly
+#' chosen cell, once the population size reaches the specified equilibrium size.
 #' @param initial_division_rate - Rate of symmetric cell division during development
 #' @param final_division_rate - Rate of symmetric cell division once population equilibrium is reached.
 #' @param target_pop_size - Size of target population
@@ -233,6 +240,8 @@ run_driver_process_sim=function( initial_division_rate=0.1,
 #' @param fitness - relative fitness advantage.  Cells carrying this divide at a rate=(1+fitness)*baserate
 #' @param minprop - Minimum aberrant cell fraction at nyears for driver to be regarded as have "taken"
 #' @param maxtry  - Maximum number of attempts to introduce a driver
+#' @details 
+#' This function is similar to the run_selection_sim() function. However, the driver is switch off after the time specified in the nyears_transient_end argument.  
 #' @return simpop object.
 #' @export
 #' @examples
@@ -245,14 +254,14 @@ run_transient_selection=function( initial_division_rate,
                                   nyears_transient_end=30,
                                   nyears=40,
                                   fitness=0.2, ## relative fitness
-                                  minprop=0.05
-){
+                                  minprop=0.05)
+{
   selsim=run_selection_sim(initial_division_rate,
-                                    final_division_rate,
-                                    target_pop_size,
-                                    nyears_driver_acquisition,
-                                    nyears_transient_end,
-                                    fitness,minprop)
+                           final_division_rate,
+                           target_pop_size,
+                           nyears_driver_acquisition,
+                           nyears_transient_end,
+                           fitness,minprop)
   ##switch off
   cfg=selsim$cfg
   cfg$info$fitness[3]=0
@@ -260,7 +269,7 @@ run_transient_selection=function( initial_division_rate,
   params[["n_sim_days"]]=nyears*365
   params[["maxt"]]=NULL
   final=sim_pop(selsim,params=params,cfg)
-  final=combine_simpops(selsim,final)
+  # final=combine_simpops(selsim,final)
   return(get_tree_from_simpop(final))
 }
 
@@ -275,10 +284,10 @@ run_transient_selection=function( initial_division_rate,
 #' @examples
 #' neutsim=run_neutral_sim(0.05,1/365,target_pop_size = 5e4,nyears=80)
 run_neutral_sim=function( initial_division_rate,
-                                            final_division_rate,
-                                            target_pop_size=1e5,
-                                            nyears=40
-){
+                          final_division_rate,
+                          target_pop_size=1e5,
+                          nyears=40)
+{
   cfg=getDefaultConfig(target_pop_size,rate=initial_division_rate,ndriver=1,basefit = 0)
   params=list(n_sim_days=nyears*365,
               b_stop_at_pop_size=1,
@@ -289,7 +298,7 @@ run_neutral_sim=function( initial_division_rate,
   cfg$compartment$popsize[2]=target_pop_size
   params[["b_stop_at_pop_size"]]=0
   adult1=sim_pop(growthphase,params=params,cfg)
-  return(combine_simpops(growthphase,adult1))
+  return(cadult1)  #return(combine_simpops(growthphase,adult1))
 }
 
 
@@ -307,7 +316,7 @@ add_driver=function(simpop,params,acceptance_threshold=0.05){
     celltype[idx]=-1
     tree1_tmp=assign_celltype(tree1,celltype,tree1$cfg)
     simpop2=sim_pop(tree1_tmp,params=params,tree1_tmp$cfg)
-
+    
     dc=simpop2$cfg$info$population[3]
     #print(adult2$cfg$info)
     tries=tries+1
@@ -346,7 +355,7 @@ run_neutral_trajectory=function(simpop,initial_division_rate,trajectory){
   )
   if(is.null(simpop)){
     cfg=getDefaultConfig(target_pop_size = trajectory$target_pop_size[1],rate = initial_division_rate,basefit = 0,ndriver = 1)
-
+    
     
     sp=sim_pop(NULL,params=params,cfg,b_verbose = FALSE)
     idx=1
@@ -358,30 +367,30 @@ run_neutral_trajectory=function(simpop,initial_division_rate,trajectory){
     }else{
       idx=1
     }
-
+    
     sp=simpop
   }
   params[["b_stop_at_pop_size"]]=0
   for(i in idx:(length(trajectory$ts)-1)){
     cfg=list(compartment=data.frame(val=c(0,1),rate=c(-1,trajectory$division_rate[i]),popsize=c(1,trajectory$target_pop_size[i])),
-           info=sp$cfg$info)
+             info=sp$cfg$info)
     cfg=getDefaultConfig(target_pop_size = trajectory$target_pop_size[i],rate = trajectory$division_rate[i],basefit = 0,ndriver = 1)
     params[["n_sim_days"]]=trajectory$ts[i+1]
     spx=sim_pop(get_tree_from_simpop(sp),params=params,cfg,b_verbose = FALSE)
-    sp=combine_simpops(sp,spx)
+    sp=spx  #sp=combine_simpops(sp,spx)
   }
   sp
 }
 
 
 run_2compartment_model=function(){
-   ##Initialise LT-HSC
-   #
-
+  ##Initialise LT-HSC
+  #
+  
 }
 
 simple_continuous_selection=function(){
-
+  
 }
 
 #' Restarts a multiple driver scenario
@@ -432,7 +441,7 @@ continue_driver_process_sim=function(insim,nyears,fitnessGen){
     tree0=addDriverEvent(tree0,tree0$cfg,1,fitness=fitnessGen())
     tmp2=tree0
     adult=sim_pop(tree0,params=params,tree0$cfg,b_verbose = FALSE)
-    tree0=combine_simpops(tree0,adult)
+    tree0=adult  #tree0=combine_simpops(tree0,adult)
     #tree0=get_tree_from_simpop(adult)
     #print(tree0$cfg$info %>% dplyr::filter(population>0))
     if(length(which(tree0$cfg$info$fitness==0 & tree0$cfg$info$population>0))>2){

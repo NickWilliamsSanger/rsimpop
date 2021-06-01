@@ -24,6 +24,7 @@ initSimPop=function(seed,bForce=FALSE){
   simpop_seed<<-seed
   NULL
 }
+#' @title 
 #' Simulates Evolution of Cell Population using a Continuous Time Birth-Death Model
 #'
 #' This is the main entry function for carrying out simulations.  The parameters (e.g. rates) are fixed for the duration of the simulation.
@@ -41,18 +42,20 @@ initSimPop=function(seed,bForce=FALSE){
 #' params=list(n_sim_days=nyears_driver_acquisition*365,            b_stop_at_pop_size=1,b_stop_if_empty=0)
 #' growthphase=sim_pop(NULL,params=params,cfg)
 sim_pop=function(tree,
- params=list(),
- cfg=list(compartment=data.frame(val=c(0,1),rate=c(-1,1/120.0),popsize=c(1,1e4)),
-                                 info=data.frame(val=c(0,1,1),fitness=c(-1,0,0.2))
-                                 ),
- b_verbose=TRUE,
- b_check=FALSE){
+                 params=list(),
+                 cfg=list(compartment=data.frame(val=c(0,1),rate=c(-1,1/120.0),popsize=c(1,1e4)),
+                          info=data.frame(val=c(0,1,1),fitness=c(-1,0,0.2))),
+                 b_verbose=TRUE, 
+                 b_check=FALSE)
+{
+  toCombine=TRUE
   if(is.null(tree)){
+    toCombine=FALSE
     tree=rtree(2)
     tree$edge.length=rep(0,2)
     tree$events=data.frame(value=0:1,driverid=c(0,0),node=1:2,ts=0.0)
   }
-  tree=standardiseTree(tree)
+  tree=standardiseTree(tree)  #populate the tree object with the #divisions (ndivs), the time (tBirth) and the maximum time (maxt)
   ndrivers=tree$ndrivers
   time=tree$tBirth
   ##maxt=tree$maxt
@@ -61,7 +64,7 @@ sim_pop=function(tree,
                      b_stop_at_pop_size=0,
                      maxt=tree$maxt,
                      driver_rate_per_cell_per_day=0
-                     )
+  )
   fields=names(defaultparams)
   if(length(setdiff(names(params),names(defaultparams)))>0){
     badparam=setdiff(names(params),names(defaultparams))
@@ -76,7 +79,7 @@ sim_pop=function(tree,
       cat(sprintf("%s: %s\n",par,params[[par]]))
     }
   }
-
+  
   edges=tree$edge
   nmuts=tree$edge.length
   nedge=dim(tree$edge)[1]
@@ -90,16 +93,19 @@ sim_pop=function(tree,
   }else{
     ndrivers=tree$ndrivers
   }
-
-
+  
+  # if(is.null(tree$is_combined))
+  #   tree$is_combined=FALSE
+  
+  
   if(params[["n_sim_days"]]<=params[["maxt"]]){
     browser()
     stop("n_sim_days must be greater than max(timestamp)")
   }
-
+  
   ntips=length(tree$tip.label)
   nevents=dim(tree$events)[1]
-
+  
   compartment=cfg$compartment
   compartmentinfo=cfg$info
   idxd=grep("^d",colnames(compartmentinfo))
@@ -110,18 +116,18 @@ sim_pop=function(tree,
   }else{
     dsm=as.matrix(compartmentinfo[,idxd])
   }
- # if(ndriver>1000){
- #   stop("Too many drivers: edit CellSimulation::setCompartmentInfoRecursively in C++ to support more!")
- # }
+  # if(ndriver>1000){
+  #   stop("Too many drivers: edit CellSimulation::setCompartmentInfoRecursively in C++ to support more!")
+  # }
   totalpop=max(sum(compartment$popsize),length(tree$tip.label))
   MAX_SIZE=3*totalpop ##Allows for stochastic drift in population size (need to make this robust)
-
+  
   MAX_EVENTS=ceiling(2*params[["n_sim_days"]])
-
+  
   if(b_verbose){
-  cat("MAX_EVENTS=",MAX_EVENTS,"\n")
-  cat("MAX_SIZE=",MAX_SIZE,"\n")
- ## browser()
+    cat("MAX_EVENTS=",MAX_EVENTS,"\n")
+    cat("MAX_SIZE=",MAX_SIZE,"\n")
+    ## browser()
   }
   res=.C("sim_pop2",
          edges=as.integer(edges),
@@ -193,11 +199,20 @@ sim_pop=function(tree,
            cfg=cfg,
            status=res$status
   )
-
+  
   class(res)="simpop"
   res=get_tree_from_simpop(res,b_check)
+  if(toCombine)
+  {
+    res = combine_simpops(tree,res)
+    # message("the 2 objects has been combined")
+    # res$is_combined=FALSE
+    # tree$is_combine=TRUE
+  }
   res
 }
+
+
 #' Plot simpop population trajectory
 #' @param simpop integer - a negative number uses current time to 100th second resoultion.
 #'
@@ -218,7 +233,13 @@ plot.simpop=function(simpop,...){
 }
 
 
-standardiseTree=function(tree){
+standardiseTree=function(tree)
+{
+  if(is.null(tree$events)){
+    ##Add events..
+    stop("add events!")
+  }
+  
   nedge=dim(tree$edge)[1]
   if(is.null(tree$ndivs)){
     tree$ndivs=rep(0,nedge)
@@ -229,10 +250,6 @@ standardiseTree=function(tree){
   }else{
     tree$maxt=max(tree$time)
   }
-  if(is.null(tree$events)){
-    ##Add events..
-    stop("add events!")
-  }
   tree
 }
 
@@ -240,20 +257,20 @@ standardiseTree=function(tree){
 #' @param sim input simpop simulation
 #' @return ape tree
 #' @export
-get_tree_from_simpop=function# Gets APE ancestral tree of extant cells.
-(sim,
- b_check=FALSE
-){
+get_tree_from_simpop=function(sim, # Gets APE ancestral tree of extant cells.
+                              b_check=FALSE)
+{
   if(!("simpop" %in% class(sim))){
     stop("get_tree_from_simpop: Input must be simpop object")
   }
   ttree=sim
   ttree$tip.label=sprintf("s%d",1:sim$ntips)
   class(ttree)=c("simpop","phylo")
-  if(b_check){
-    tmpf=tempfile()
+  if(b_check)   #from here, it is supposed to check if the ttree object has the strucuture of a phylo object. When there is a problem with the structure of the object, it will return FATAL or MODERATE.
+  {
+    tmpf=tempfile() #creating a temporal file where the outputs of the checking process will be printed
     sink(tmpf)
-    try(checkValidPhylo(ttree))
+    try(checkValidPhylo(ttree))  #this is the ape function that does the checking
     sink()
     chk=readLines(tmpf)
     if(any(grepl("FATAL",chk)) || any(grepl("MODERATE",chk))){
@@ -292,7 +309,7 @@ C_subsample_pop=function(tree,tips){
   if(ndriver<1){
     stop("Please specify driver columns in compartmentinfo")
   }
-
+  
   res=.C("sub_sample",
          as.integer(edges),
          as.integer(ndivs),
@@ -335,7 +352,7 @@ C_subsample_pop=function(tree,tips){
   if(res$status>0){
     stop("Error call C(.sub_sample)")
   }
-
+  
   nedge=res$nedgeOut
   ###browser()
   ##nEventsCount=res$nEventsCount
@@ -359,7 +376,7 @@ C_subsample_pop=function(tree,tips){
                              node=res$eventnodeOut[1:res$neventOut]
                              ,ts=res$eventtsOut[1:res$neventOut]),
            cfg=cfg
-
+           
   )
 }
 
@@ -375,11 +392,12 @@ C_subsample_pop=function(tree,tips){
 #' params=list(n_sim_days=2*365,b_stop_at_pop_size=1,b_stop_if_empty=0)
 #' growthphase=sim_pop(NULL,params=params,cfg)
 #' stree=get_subsampled_tree(growthphase,50)
-get_subsampled_tree=function
-(tree##<< A phylo object
- ,N##<< Number of tips/cells to subsample.
- ,tips=tree$edge[c(which(tree$state==0 & tree$edge[,2]<=length(tree$tip.label)),sample(which(tree$state!=0 & tree$edge[,2]<=length(tree$tip.label)),N)),2]
-){
+get_subsampled_tree=function(tree,N,
+                             tips=tree$edge[c(which(tree$state==0 & tree$edge[,2]<=length(tree$tip.label)),sample(which(tree$state!=0 & tree$edge[,2]<=length(tree$tip.label)),N)),2])
+{
+  ##tree: << A phylo object
+  ##N<< Number of tips/cells to subsample
+  
   N=length(tips)
   tmp=C_subsample_pop(tree,tips)
   ##browser()
@@ -390,17 +408,20 @@ get_subsampled_tree=function
 }
 
 
-assign_celltype=function#Sets the celltype for current cells (tips)
-(tree##<< A extended simpop phylo object
- ,celltype##<< cell type in parallel with tips NAs keep current cell type.
- ,driverid##<< Driver id (0) = no driver.
- ,cfg=tree$cfg##<< specifies the compartment division rates etc..
- ){
+assign_celltype=function(tree, celltype, driverid, cfg=tree$cfg)
+{
+  #Sets the celltype for current cells (tips)
+  ##<< A extended simpop phylo object
+  ##<< cell type in parallel with tips NAs keep current cell type.
+  ##<< Driver id (0) = no driver.
+  ##<< specifies the compartment division rates etc...
+  
   tree$maxt=max(tree$time)
   if(all(is.na(celltype))){
     tree$cfg=cfg
     return(tree)
   }
+  
   idx=which(!is.na(celltype) & celltype!=0)
   utype=unique(celltype[idx])
   newtype=setdiff(utype,tree$events$value)
@@ -410,7 +431,7 @@ assign_celltype=function#Sets the celltype for current cells (tips)
   }
   tree$cfg=cfg
   ###browser()
-
+  
   newevents=data.frame(value=celltype[idx],driverid=driverid[idx],node=idx,ts=rep(tree$maxt,length(idx)))
   tree$events=rbind(tree$events,newevents)
   idx=which(!is.na(celltype))
@@ -474,8 +495,12 @@ combine_simpops=function(simpop1,simpop2){
   simpop2$totaldrivercount=c(simpop1$totaldrivercount,simpop2$totaldrivercount)
   simpop2
 }
-#' Gets a simple default configuration with one compartment
-#' @param targetPopSize integer - a negative number uses current time to 100th second resoultion.
+#' @title 
+#' Gets a simple default configuration with two compartments
+#' @description 
+#' getDefaultConfig configures one main cell compartment using the user specified parameters and 
+#' a default compartment (outgroup) which corresponds to the zygote.
+#' @param targetPopSize integer - a negative number uses current time to 100th second resolution.
 #' @param rate float - division rate in division per day
 #' @param descr character - description of main compartment
 #' @param ndriver integer - number of drivers - redundant now.
@@ -483,8 +508,17 @@ combine_simpops=function(simpop1,simpop2){
 #' @return list config
 #' @export
 getDefaultConfig=function(target_pop_size,rate,
-                           descr="cellType1",ndriver=1,
-                           basefit=0.1){
+                          descr="cellType1",ndriver=1,
+                          basefit=0.1)
+{
+  if(!is.numeric(rate) | length(rate)>1)
+    stop("per day division rate should be a numeric value.")
+  if(!is.numeric(basefit) | length(basefit)>1)
+    stop("base fitness should be a numeric value.")
+  if(!is.numeric(ndriver) | length(ndriver)>1)
+    stop("the number of driver should be an integer.")
+  if(!is.numeric(target_pop_size) | length(target_pop_size)>1)
+    stop("the target population size should be a scalars")
   compartment=data.frame(val=0,
                          rate=-1,
                          popsize=1,
@@ -516,7 +550,7 @@ addCellCompartment=function(cfg,population,rate,ndriver=0,basefit=0,descr=NULL){
   row$population=0
   row$fitness=0
   row$id=0
-
+  
   cfg$info=rbind(cfg$info,row)
   cfg$compartment=rbind(cfg$compartment,data.frame(val=val,rate=rate,popsize=population,desc=descr))
   cfg$drivers=rbind(cfg$drivers,data.frame(val=val,driver=1,fitness=0))
@@ -524,19 +558,23 @@ addCellCompartment=function(cfg,population,rate,ndriver=0,basefit=0,descr=NULL){
 }
 
 #' Adds a differentiation events to a simpop. Can either specify relevant tips or randomly generate.
-#' @param tree - simpop.
+#' @param tree - simpop object.
 #' @param cfg  - List. simpop config.
 #' @param newCellType - character
-#' @param idx - integer. Index of
-#' @param currentCompartment - integer. ID (value) of compartment to be added to.
+#' @param idx - integer/vector. Index of the tip where to add the differentiation event. 
+#' @param nEvents - integer. the number of differentiation events to be added
+#' @param currentCompartment - integer. ID (value) of compartment where the differentiation event will be added to.
+#' @return simpop object
 #' @export
-addDifferentiationEvents=function(tree,cfg,newCellType,idx=NULL,nEvent=-1,currentCompartment=-1){
+addDifferentiationEvents = function(tree,cfg,newCellType,idx=NULL,nEvent=-1,currentCompartment=-1)
+{
   if(!newCellType %in% cfg$compartment$val){
     stop("newCellType not in cfg$compartment")
   }
   N=length(tree$tip.label)
   idxt=match(1:N,tree$edge[,2])
-  if(is.null(idx)){
+  if(is.null(idx))
+  {
     if(nEvent<0){
       stop("Please specify nEvent")
     }
@@ -551,10 +589,25 @@ addDifferentiationEvents=function(tree,cfg,newCellType,idx=NULL,nEvent=-1,curren
       idx=sample(idxx,size = nEvent,replace = FALSE)
     }
   }
+  else
+  {
+    if(nEvent<0)
+      stop("Please specify nEvent")
+    if(currentCompartment<0)   ##randomly pick from all non-outgroup
+    {
+      if(!all(idx %in% which(tree$state[idxt]>0)))
+        stop("some tips indexes are out of range of non-outgroup tip indexes.")
+    }
+    else
+    {
+      if(!all(idx %in% which(tree$state[idxt]==currentCompartment)))
+        stop("some tips indexes are out of range of current compartment tip indexes.")
+    }
+  }
   celltype=rep(NA,N)
   celltype[idx]=newCellType
   driverid=rep(0,N)
-  assign_celltype(tree,celltype,driverid,cfg=cfg)##<< specifies the compartment division rates etc.
+  assign_celltype(tree,celltype,driverid,cfg=cfg)  ##<< specifies the compartment division rates etc.
 }
 
 make_star_tree=function(N){
@@ -567,9 +620,13 @@ make_star_tree=function(N){
 #' Adds a driver event to a current simpop
 #' @param tree - simpop.
 #' @param cfg  - List. simpop config.
-#' @param currentCompartment - integer. ID (value) of compartment to be added to.
+#' @param currentCompartment - integer. ID (value) of compartment on which the driver will be added to.
+#' @param fitness - numreic. the fitness associated to the driver.
+#' @return 
+#' simpop object
 #' @export
-addDriverEvent=function(tree,cfg,currentCompartment,fitness){
+addDriverEvent=function(tree,cfg,currentCompartment,fitness)
+{
   N=length(tree$tip.label)
   idxt=match(1:N,tree$edge[,2])
   idxx=which(tree$state[idxt]==currentCompartment)
@@ -579,11 +636,11 @@ addDriverEvent=function(tree,cfg,currentCompartment,fitness){
   if(abs(fitness)<1e-6){
     stop("Unable to addDriverEvent with zero fitness")
   }
-
+  
   idx=sample(idxx,size = 1,replace = FALSE)
   celltype=rep(NA,N)
   celltype[idx]=tree$state[idxt[idx]]
-
+  
   ##Find driver ID take the lowest with an empty population
   idxd=grep("^driver",colnames(cfg$info))
   d=-1
@@ -594,7 +651,8 @@ addDriverEvent=function(tree,cfg,currentCompartment,fitness){
     }
   }
   #browser()
-  if(d<0){
+  if(d<0)
+  {
     ##We need to add a single new row to cfg$info
     d=length(idxd)+1
     cfg$info[[sprintf("driver%d",d)]]=0
@@ -641,7 +699,8 @@ addDriverEvent=function(tree,cfg,currentCompartment,fitness){
 
 recalculateFitnessV2=function(cfg,cellType){
   idx=which(cfg$info$val==cellType)
-  if(length(idx)>0){
+  if(length(idx)>0)
+  {
     drivcol=sprintf("driver%d",cfg$drivers$driver[which(cfg$drivers$val==cellType)])
     fitness=cfg$drivers$fitness[which(cfg$drivers$val==cellType)]
     #additive
