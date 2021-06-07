@@ -2,7 +2,10 @@
 % Please edit documentation in R/sim_pop.R
 \name{sim_pop}
 \alias{sim_pop}
-\title{Simulates Evolution of Cell Population using a Continuous Time Birth-Death Model}
+\title{Simulates Evolution of Cell Population using a Continuous Time Birth-Death Model
+
+This is the main entry function for carrying out simulations.  The parameters (e.g. rates) are fixed for the duration of the simulation.
+Note: the implementation uses .C - so the actual data is copied on each invocation.}
 \usage{
 sim_pop(
   tree,
@@ -28,6 +31,8 @@ sim_pop(
 simpop object
 }
 \description{
+Simulates Evolution of Cell Population using a Continuous Time Birth-Death Model
+
 This is the main entry function for carrying out simulations.  The parameters (e.g. rates) are fixed for the duration of the simulation.
 Note: the implementation uses .C - so the actual data is copied on each invocation.
 }

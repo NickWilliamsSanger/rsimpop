@@ -299,30 +299,34 @@ void CellSimulation::update_edge_matrix(int * edges,int * ndivsOut,int * stateOu
 				eventsOut.push_back(tmp);
 				currentState=tmp.value;
 				currentDriverID=tmp.driverid;
+				//currentUid=tmp.uid;
 			}
 			edges[*row_counter+max_size]=(*tip_counter)++;
 			ndivsOut[*row_counter]=currentChild->ndiv;
 			tBirthOut[*row_counter]=currentChild->tbirth;
 			stateOut[*row_counter]=currentState;
 			driverIDOut[*row_counter]=currentDriverID;
+			//uidOut[*row_counter]=currentUid;
 			(*row_counter)++;
 		}else{
 			//internal node
 			int child_counter=(*internal_counter)++;
 			edges[*row_counter+max_size]=child_counter;
 			for(const shared_ptr<Event> & pevent: currentChild->events){
-							//printf("event:%d %d\n",pevent->node,pevent->value);
+							//printf("event:%d %d %d\n",pevent->node,pevent->value,pevent->uid);
 							Event tmp=*pevent;
 							tmp.node=child_counter;
 							///printf("event:%d %d\n",tmp.node,tmp.value);
 							eventsOut.push_back(tmp);
 							currentState=tmp.value;
 							currentDriverID=tmp.driverid;
+							//currentUid=tmp.uid;
 			}
 			ndivsOut[*row_counter]=currentChild->ndiv;
 			tBirthOut[*row_counter]=currentChild->tbirth;
 			stateOut[*row_counter]=currentState;
 			driverIDOut[*row_counter]=currentDriverID;
+			//uidOut[*row_counter]=currentUid;
 			(*row_counter)++;
 			update_edge_matrix(edges,ndivsOut,stateOut,driverIDOut,tBirthOut,child_counter,internal_counter,tip_counter,row_counter,currentChild,max_size,eventsOut,currentState,currentDriverID);
 		}

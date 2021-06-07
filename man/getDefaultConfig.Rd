@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim_pop.R
 \name{getDefaultConfig}
 \alias{getDefaultConfig}
-\title{Gets a simple default configuration with one compartment}
+\title{Gets a simple default configuration with two compartments}
 \usage{
 getDefaultConfig(
   target_pop_size,
@@ -21,11 +21,12 @@ getDefaultConfig(
 
 \item{basefit}{float - base fitness redundant now.}
 
-\item{targetPopSize}{integer - a negative number uses current time to 100th second resoultion.}
+\item{targetPopSize}{integer - a negative number uses current time to 100th second resolution.}
 }
 \value{
 list config
 }
 \description{
-Gets a simple default configuration with one compartment
+getDefaultConfig configures one main cell compartment using the user specified parameters and
+a default compartment (outgroup) which corresponds to the zygote.
 }

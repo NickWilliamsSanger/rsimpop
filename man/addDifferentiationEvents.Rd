@@ -15,7 +15,7 @@ addDifferentiationEvents(
 }
 \arguments{
 \item{tree}{\itemize{
-\item simpop.
+\item simpop object.
 }}
 
 \item{cfg}{\itemize{
@@ -27,12 +27,19 @@ addDifferentiationEvents(
 }}
 
 \item{idx}{\itemize{
-\item integer. Index of
+\item integer/vector. Index of the tip where to add the differentiation event.
 }}
 
 \item{currentCompartment}{\itemize{
-\item integer. ID (value) of compartment to be added to.
+\item integer. ID (value) of compartment where the differentiation event will be added to.
 }}
+
+\item{nEvents}{\itemize{
+\item integer. the number of differentiation events to be added
+}}
+}
+\value{
+simpop object
 }
 \description{
 Adds a differentiation events to a simpop. Can either specify relevant tips or randomly generate.

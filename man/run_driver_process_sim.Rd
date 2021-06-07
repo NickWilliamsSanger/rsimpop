@@ -52,7 +52,7 @@ run_driver_process_sim(
 simpop object.
 }
 \description{
-The user specifies the rate at which drivers are introduced and the distribution the selective coefficients are drawn from.
+The user specifies the rate at which drivers are introduced and the distribution of the selective coefficients are drawn from.
 Note that unlike in \code{\link{run_selection_sim}} the drivers are allowed to stochastically die out.
 The drivers at the specified rate with the gap between successive introductions exponentially distributed.
 }

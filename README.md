@@ -1,13 +1,13 @@
-11/05/2021
+04/06/2021
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-rsimpop
-=======
+
+# rsimpop
 
 <!-- badges: start -->
 <!-- badges: end -->
-Installation
-------------
+
+## Installation
 
 You can install rsimpop like so:
 
@@ -15,16 +15,16 @@ You can install rsimpop like so:
 devtools::install_github("NickWilliamsSanger/rsimpop")
 ```
 
-rsimpop
--------
+## rsimpop
 
-This package facilitates the simultaneous simulation of multiple cellular compartments each with their own target population size and potentially also sub-compartments with differential fitness (driver compartments).
+This package facilitates the simultaneous simulation of multiple
+cellular compartments each with their own target population size and
+potentially also sub-compartments with differential fitness (driver
+compartments).
 
-Simulate from Zygote for 1 year and subsample tree
---------------------------------------------------
+## Simulate from Zygote for 1 year and subsample tree
 
 ``` r
-
 ##Initialise with seed (R and rsimpop separately)
 SEED=37774323
 initSimPop(SEED,bForce = TRUE)
@@ -72,7 +72,7 @@ print(sampledtree1)
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 plot_tree(sampledtree1,cex.label = 0.5)
@@ -80,7 +80,7 @@ plot_tree(sampledtree1,cex.label = 0.5)
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 title("Sampled Zygote Tree: Division Tree")
@@ -88,7 +88,12 @@ title("Sampled Zygote Tree: Division Tree")
 
 <img src="man/figures/README-zygote-2.png" width="100%" />
 
-Notice how the sampled tree has 101 tips rather than the specified 100. This is because the simulator now always maintains an inactive outgroup (here s1). A group is rendered inactive by specifying a negative "rate" in the cfg$compartment dataframe. The tree branch lengths are now given in terms of the number of self renewal divisions. This allows the user to flexibly apply their own mutation acquisition model:
+Notice how the sampled tree has 101 tips rather than the specified 100.
+This is because the simulator now always maintains an inactive outgroup
+(here s1). A group is rendered inactive by specifying a negative “rate”
+in the cfg$compartment dataframe. The tree branch lengths are now given
+in terms of the number of self renewal divisions. This allows the user
+to flexibly apply their own mutation acquisition model:
 
 ``` r
 get_elapsed_time_tree
@@ -119,7 +124,7 @@ get_elapsed_time_tree
 #>     }
 #>     tree
 #> }
-#> <bytecode: 0x7fc324f0c288>
+#> <bytecode: 0x7fdf7f344450>
 #> <environment: namespace:rsimpop>
 sampledtree1m=get_elapsed_time_tree(sampledtree1,mutrateperdivision=1,backgroundrate=15/365)
 plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -127,16 +132,19 @@ plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tr
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 ```
 
 <img src="man/figures/README-mutacq-1.png" width="100%" />
 
-Actually this illustrates a potential problem with the outgroup sample still having a acquired mutations because it has a finite duration (0 to 365 days)..
+Actually this illustrates a potential problem with the outgroup sample
+still having a acquired mutations because it has a finite duration (0 to
+365 days)..
 
-The changes between compartments is specified in a separate data.frame, tree$events , that is maintained and updated by the simulator.
+The changes between compartments is specified in a separate data.frame,
+tree$events , that is maintained and updated by the simulator.
 
 ``` r
 t1=plot_tree(sampledtree1m,cex.label = 0.5);title("Sampled Zygote Tree: Mutation Tree")
@@ -147,12 +155,13 @@ node_labels(t1,cex=0.5)
 
 ``` r
 print(sampledtree1m$events)
-#>   value driverid node ts
-#> 1     0        0    1  0
-#> 2     1        0  103  0
+#>   value driverid node ts uid
+#> 1     0        0    1  0   0
+#> 2     1        0  103  0   1
 ```
 
-Notice how the events dataframe specifies the compartment for the outgroup and the rest of the tree.
+Notice how the events dataframe specifies the compartment for the
+outgroup and the rest of the tree.
 
 We can introduce another cell compartment as follows:
 
@@ -162,22 +171,23 @@ cfg=addCellCompartment(cfg,population = 5e4,rate=1/50,ndriver=1,descr="MyTissue"
 cfg$compartment$rate[2]=1/120  ## change the rate of compartment 1
 sampledtree1a=addDifferentiationEvents(sampledtree1,cfg,2,nEvent=10)
 print(sampledtree1a$events)
-#>    value driverid node       ts
-#> 1      0        0    1   0.0000
-#> 2      1        0  103   0.0000
-#> 3      2        0    4 135.4454
-#> 4      2        0    8 135.4454
-#> 5      2        0   11 135.4454
-#> 6      2        0   14 135.4454
-#> 7      2        0   38 135.4454
-#> 8      2        0   54 135.4454
-#> 9      2        0   80 135.4454
-#> 10     2        0   81 135.4454
-#> 11     2        0   90 135.4454
-#> 12     2        0   96 135.4454
+#>    value driverid node       ts uid
+#> 1      0        0    1   0.0000   0
+#> 2      1        0  103   0.0000   1
+#> 3      2        0    4 135.4454   2
+#> 4      2        0    8 135.4454   3
+#> 5      2        0   11 135.4454   4
+#> 6      2        0   14 135.4454   5
+#> 7      2        0   38 135.4454   6
+#> 8      2        0   54 135.4454   7
+#> 9      2        0   80 135.4454   8
+#> 10     2        0   81 135.4454   9
+#> 11     2        0   90 135.4454  10
+#> 12     2        0   96 135.4454  11
 ```
 
-Each branch carries its final compartment membership in the "state" vector.
+Each branch carries its final compartment membership in the “state”
+vector.
 
 ``` r
 sampledtree1a$color = c("grey","black","red")[sampledtree1a$state+1]
@@ -186,12 +196,15 @@ plot_tree(sampledtree1a,cex.label = 0.5);title("Highlights branches with compart
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 ```
 
-<img src="man/figures/README-plotcompartment-1.png" width="100%" /> The above plot does not capture the situation when compartment changes take place mid-branch - so alternatively we can better visualise the situation using the built in function *plot\_tree\_events*
+<img src="man/figures/README-plotcompartment-1.png" width="100%" /> The
+above plot does not capture the situation when compartment changes take
+place mid-branch - so alternatively we can better visualise the
+situation using the built in function *plot\_tree\_events*
 
 ``` r
 plot_tree_events(sampledtree1a)
@@ -199,36 +212,16 @@ plot_tree_events(sampledtree1a)
 
 <img src="man/figures/README-plotc2-1.png" width="100%" />
 
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  2:0 #4DAF4A  19
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  2:0 #4DAF4A  19
-    #>    value driverid node       ts fitness key     col pch idx
-    #> 1      0        0    1   0.0000       0 0:0 #E41A1C  19   1
-    #> 2      1        0  103   0.0000       0 1:0 #377EB8  19   2
-    #> 3      2        0    4 135.4454       0 2:0 #4DAF4A  19  11
-    #> 4      2        0    8 135.4454       0 2:0 #4DAF4A  19  16
-    #> 5      2        0   11 135.4454       0 2:0 #4DAF4A  19  24
-    #> 6      2        0   14 135.4454       0 2:0 #4DAF4A  19  31
-    #> 7      2        0   38 135.4454       0 2:0 #4DAF4A  19  79
-    #> 8      2        0   54 135.4454       0 2:0 #4DAF4A  19 110
-    #> 9      2        0   80 135.4454       0 2:0 #4DAF4A  19 161
-    #> 10     2        0   81 135.4454       0 2:0 #4DAF4A  19 165
-    #> 11     2        0   90 135.4454       0 2:0 #4DAF4A  19 182
-    #> 12     2        0   96 135.4454       0 2:0 #4DAF4A  19 193
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.
 
-We've already updated the config with the target population sizes and division rates, so we're ready to simulate:
+We’ve already updated the config with the target population sizes and
+division rates, so we’re ready to simulate:
 
 ``` r
 sp2=sim_pop(sampledtree1a,params=list(n_sim_days=365*10),cfg=sampledtree1a$cfg)
@@ -256,36 +249,18 @@ plot_tree_events(sampledtree2,cex.label = 0.5)
 
 <img src="man/figures/README-simagain-2.png" width="100%" />
 
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  2:0 #4DAF4A  19
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  2:0 #4DAF4A  19
-    #>   value driverid node       ts fitness key     col pch idx
-    #> 1     0        0    1   0.0000       0 0:0 #E41A1C  19   1
-    #> 2     1        0  103   0.0000       0 1:0 #377EB8  19   2
-    #> 3     2        0  107 135.4454       0 2:0 #4DAF4A  19   6
-    #> 4     2        0  122 135.4454       0 2:0 #4DAF4A  19  37
-    #> 5     2        0  137 135.4454       0 2:0 #4DAF4A  19  68
-    #> 6     2        0  144 135.4454       0 2:0 #4DAF4A  19  78
-    #> 7     2        0  170 135.4454       0 2:0 #4DAF4A  19 133
-    #> 8     2        0  188 135.4454       0 2:0 #4DAF4A  19 169
-    #> 9     2        0  196 135.4454       0 2:0 #4DAF4A  19 186
     #> 
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.
 
-Selection based simulation
---------------------------
+## Selection based simulation
 
-Here we are interested in the simple situation of one cellular compartment with multiple sub-compartments.
+Here we are interested in the simple situation of one cellular
+compartment with multiple sub-compartments.
 
 ``` r
 run_selection_sim
@@ -320,15 +295,13 @@ run_selection_sim
 #>             print(tree1_tmp$cfg$info)
 #>             params[["b_stop_at_pop_size"]] = 1
 #>             adult2 = sim_pop(tree1_tmp, params = params, tree1_tmp$cfg)
-#>             adult2a = combine_simpops(growthphase, adult2)
-#>             tree2 = get_tree_from_simpop(adult2a)
+#>             tree2 = get_tree_from_simpop(adult2)
 #>             params[["b_stop_at_pop_size"]] = 0
 #>             cfg = tree2$cfg
 #>             cfg$compartment$rate[2] = final_division_rate
 #>             cfg$compartment$popsize[2] = target_pop_size
-#>             adult2 = sim_pop(tree2, params = params, cfg)
-#>             adult2 = combine_simpops(adult2a, adult2)
-#>             dc = adult2$cfg$info$population[3]
+#>             adult3 = sim_pop(tree2, params = params, cfg)
+#>             dc = adult3$cfg$info$population[3]
 #>         }
 #>     }
 #>     else {
@@ -336,12 +309,10 @@ run_selection_sim
 #>             2] <= length(tree0$tip.label)), 2])
 #>         cfg$compartment$rate[2] = final_division_rate
 #>         cfg$compartment$popsize[2] = target_pop_size
-#>         years = nyears
 #>         params[["n_sim_days"]] = nyears_driver_acquisition * 
 #>             365
 #>         params[["b_stop_at_pop_size"]] = 0
 #>         adult1 = sim_pop(tree0, params = params, cfg)
-#>         adult1 = combine_simpops(growthphase, adult1)
 #>         tree1 = get_tree_from_simpop(adult1)
 #>         params[["n_sim_days"]] = nyears * 365
 #>         params[["b_stop_if_empty"]] = 1
@@ -349,9 +320,8 @@ run_selection_sim
 #>         tries = 0
 #>         tree1_tmp = tree1
 #>         while (dc < max(minprop * target_pop_size, mindriver)) {
-#>             if (tries >= maxtry) {
+#>             if (tries >= maxtry) 
 #>                 return(NULL)
-#>             }
 #>             cat("No driver found: tries=", tries, "\n")
 #>             tries = tries + 1
 #>             tree1_tmp = addDriverEvent(tree1, tree1$cfg, 1, fitness = fitness)
@@ -374,7 +344,7 @@ run_selection_sim
 #>     fulltree$gdivkeep = gdivkeep
 #>     return(fulltree)
 #> }
-#> <bytecode: 0x7fc3273dac40>
+#> <bytecode: 0x7fdf69925790>
 #> <environment: namespace:rsimpop>
 selsim=run_selection_sim(0.05,1/(2*190),target_pop_size = 5e4,nyears = 50,fitness=0.3)
 #> n_sim_days: 5475
@@ -484,23 +454,11 @@ print(seltree100$cfg$info)
 #> 2    1         57     0.0  0       0
 #> 21   1         43     0.3  1       1
 plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch Length=#Self Renewal Divisions")
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   value driverid node       ts fitness key     col pch idx
-#> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
-#> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 ```
@@ -510,18 +468,6 @@ plot_tree_events(seltree100,cex.label = 0);title("Selection Based Tree: Branch L
 ``` r
 seltree100rt=get_elapsed_time_tree(seltree100)
 tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: Branch Length=#Real Time")
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   value driverid node       ts fitness key     col pch idx
-#> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
-#> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 ```
 
 <img src="man/figures/README-seltree-2.png" width="100%" />
@@ -530,23 +476,11 @@ tree=plot_tree_events(seltree100rt,cex.label = 0);title("Selection Based Tree: B
 mp=5
 seltree100m=get_elapsed_time_tree(seltree100,mutrateperdivision=mp,backgroundrate=(20-(365/190)*mp)/365)
 plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations")
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   value driverid node       ts fitness key     col pch idx
-#> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
-#> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 ```
@@ -556,31 +490,18 @@ plot_tree_events(seltree100m,cex.label = 0.5);title("Selection Based Tree: Branc
 ``` r
 seltree100m2=get_elapsed_time_tree(seltree100,mutrateperdivision=20*(190/365),backgroundrate=0)
 plot_tree_events(seltree100m2,cex.label = 0.5);title("Selection Based Tree: Branch Length=#Mutations v2")
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   uval     col pch
-#> 1  0:0 #E41A1C  19
-#> 2  1:0 #377EB8  19
-#> 3  1:1 #4DAF4A  19
-#>   value driverid node       ts fitness key     col pch idx
-#> 1     0        0    1    0.000     0.0 0:0 #E41A1C  19   1
-#> 2     1        0  103    0.000     0.0 1:0 #377EB8  19   2
-#> 3     1        1  141 5475.009     0.3 1:1 #4DAF4A  19  76
 #> 
 #> Phylogenetic tree with 101 tips and 100 internal nodes.
 #> 
 #> Tip labels:
-#>  s1, s2, s3, s4, s5, s6, ...
+#>   s1, s2, s3, s4, s5, s6, ...
 #> 
 #> Rooted; includes branch lengths.
 ```
 
 <img src="man/figures/README-seltree-4.png" width="100%" />
 
-Transient selection
--------------------
+## Transient selection
 
 ``` r
 run_transient_selection
@@ -597,10 +518,9 @@ run_transient_selection
 #>     params[["n_sim_days"]] = nyears * 365
 #>     params[["maxt"]] = NULL
 #>     final = sim_pop(selsim, params = params, cfg)
-#>     final = combine_simpops(selsim, final)
 #>     return(get_tree_from_simpop(final))
 #> }
-#> <bytecode: 0x7fc324cd0448>
+#> <bytecode: 0x7fdf61523ec8>
 #> <environment: namespace:rsimpop>
 tselsim=run_transient_selection(0.05,1/(2*190),target_pop_size = 5e4,nyears_driver_acquisition=15,
                                   nyears_transient_end=30,
@@ -657,10 +577,13 @@ plot_tree_events(get_elapsed_time_tree(tseltree200),cex.label=0)
 #> Error in get_elapsed_time_tree(tseltree200): object 'tseltree200' not found
 ```
 
-Neutral simulation with a trajectory
-------------------------------------
+## Neutral simulation with a trajectory
 
-Create a trajectory dataframe with 3 columns (ts,target\_pop\_size,division\_rate) and simulate using the run\_neutral\_trajectory wrapper function. Note that timestamps and rates are expressed in units of days and expected divisions per day respectively.
+Create a trajectory dataframe with 3 columns
+(ts,target\_pop\_size,division\_rate) and simulate using the
+run\_neutral\_trajectory wrapper function. Note that timestamps and
+rates are expressed in units of days and expected divisions per day
+respectively.
 
 ``` r
 trajectory=data.frame(ts=365*(1:80),target_pop_size=5e4+100*(1:80),division_rate=1/(2*190))
@@ -698,16 +621,20 @@ plot_tree(get_elapsed_time_tree(st),cex.label = 0)
     #> Phylogenetic tree with 101 tips and 100 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.
 
-Multiple drivers
-----------------
+## Multiple drivers
 
-Multiple drivers can be generated at a specified rate so the waiting time between events is exponentially distributed.
+Multiple drivers can be generated at a specified rate so the waiting
+time between events is exponentially distributed.
 
-Firstly the user need to create a function that draws a selection coefficient from a distibution. The simulator isn't optimised to maintain 100s of variants at once - so it is suggested that a minumum selective coefficient be specified (say 0.05) and driver incidence made correspondingly rarer.
+Firstly the user need to create a function that draws a selection
+coefficient from a distibution. The simulator isn’t optimised to
+maintain 100s of variants at once - so it is suggested that a minumum
+selective coefficient be specified (say 0.05) and driver incidence made
+correspondingly rarer.
 
 ``` r
 ##Function to generate exponential distribution based fitness
@@ -767,29 +694,11 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
-    #> 5  1:4 #FF7F00  19
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
-    #> 5  1:4 #FF7F00  19
-    #>   value driverid node        ts    fitness key     col pch idx
-    #> 1     0        0    1     0.000 0.00000000 0:0 #E41A1C  19   1
-    #> 2     1        0  203     0.000 0.00000000 1:0 #377EB8  19   2
-    #> 3     1        1  400  9642.521 0.08732078 1:1 #4DAF4A  19 396
-    #> 4     1        2  220 15716.871 0.17231742 1:2 #984EA3  19  29
-    #> 5     1        4   42 20278.195 0.09552229 1:4 #FF7F00  19  84
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.
     dpst=get_elapsed_time_tree(dpst,mutrateperdivision = 1,backgroundrate = 19/365)
@@ -797,29 +706,11 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
 
-    #>       uval     col pch
-    #> 1 0:0:0.00 #E41A1C  19
-    #> 2 1:0:0.00 #377EB8  19
-    #> 3 1:1:0.09 #4DAF4A  19
-    #> 4 1:2:0.17 #984EA3  19
-    #> 5 1:4:0.10 #FF7F00  19
-    #>       uval     col pch
-    #> 1 0:0:0.00 #E41A1C  19
-    #> 2 1:0:0.00 #377EB8  19
-    #> 3 1:1:0.09 #4DAF4A  19
-    #> 4 1:2:0.17 #984EA3  19
-    #> 5 1:4:0.10 #FF7F00  19
-    #>   value driverid node        ts    fitness      key     col pch idx
-    #> 1     0        0    1     0.000 0.00000000 0:0:0.00 #E41A1C  19   1
-    #> 2     1        0  203     0.000 0.00000000 1:0:0.00 #377EB8  19   2
-    #> 3     1        1  400  9642.521 0.08732078 1:1:0.09 #4DAF4A  19 396
-    #> 4     1        2  220 15716.871 0.17231742 1:2:0.17 #984EA3  19  29
-    #> 5     1        4   42 20278.195 0.09552229 1:4:0.10 #FF7F00  19  84
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.
 
@@ -829,7 +720,8 @@ Continue simulating the same individual until the age of 90
 dps90=continue_driver_process_sim(dps,90,fitnessGen = fitnessExpFn)
 ```
 
-Note the driver ids are reused once they become extinct so there is no guarantee that they are preserved between runs.
+Note the driver ids are reused once they become extinct so there is no
+guarantee that they are preserved between runs.
 
 ``` r
 dpst=get_subsampled_tree(dps90,200)
@@ -843,28 +735,10 @@ plot_tree_events(dpst)
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
-    #> 5  1:4 #FF7F00  19
-    #>   uval     col pch
-    #> 1  0:0 #E41A1C  19
-    #> 2  1:0 #377EB8  19
-    #> 3  1:1 #4DAF4A  19
-    #> 4  1:2 #984EA3  19
-    #> 5  1:4 #FF7F00  19
-    #>   value driverid node        ts    fitness key     col pch idx
-    #> 1     0        0    1     0.000 0.00000000 0:0 #E41A1C  19   1
-    #> 2     1        0  203     0.000 0.00000000 1:0 #377EB8  19   2
-    #> 3     1        1  380  9642.521 0.08732078 1:1 #4DAF4A  19 355
-    #> 4     1        2  216 15716.871 0.17231742 1:2 #984EA3  19  22
-    #> 5     1        4  250 20278.195 0.09552229 1:4 #FF7F00  19  94
     #> 
     #> Phylogenetic tree with 201 tips and 200 internal nodes.
     #> 
     #> Tip labels:
-    #>  s1, s2, s3, s4, s5, s6, ...
+    #>   s1, s2, s3, s4, s5, s6, ...
     #> 
     #> Rooted; includes branch lengths.

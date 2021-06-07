@@ -16,8 +16,15 @@ addDriverEvent(tree, cfg, currentCompartment, fitness)
 }}
 
 \item{currentCompartment}{\itemize{
-\item integer. ID (value) of compartment to be added to.
+\item integer. ID (value) of compartment on which the driver will be added to.
 }}
+
+\item{fitness}{\itemize{
+\item numreic. the fitness associated to the driver.
+}}
+}
+\value{
+simpop object
 }
 \description{
 Adds a driver event to a current simpop

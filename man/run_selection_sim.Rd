@@ -53,8 +53,13 @@ run_selection_sim(
 simpop object.
 }
 \description{
-The driver is subject to stochastic extinction and so is repeatedly dropped in until it "takes".
-The prevailing state when the driver is introduced is saved and reinstated with each attempted introduction.
+run_selection_sim models the evolution of a population of cells with a selective advantage given to a randomly
+chosen cell, once the population size reaches the specified equilibrium size.
+}
+\details{
+The selective advantage is introduced as a driver event. The driver is subject to stochastic
+extinction and so is repeatedly dropped in until it "takes".The prevailing state when the driver is introduced is
+saved and reinstated with each attempted introduction.
 }
 \examples{
 selsim=run_selection_sim(0.05,1/365,target_pop_size = 5e4,nyears = 50,fitness=0.3)

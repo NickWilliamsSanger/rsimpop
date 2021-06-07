@@ -53,8 +53,9 @@ sim_pop=function(tree,
     toCombine=FALSE
     tree=rtree(2)
     tree$edge.length=rep(0,2)
-    tree$events=data.frame(value=0:1,driverid=c(0,0),node=1:2,ts=0.0)
+    tree$events=data.frame(value=0:1,driverid=c(0,0),node=1:2,ts=0.0,uid=0:1)
   }
+  # print(tree$events)
   tree=standardiseTree(tree)  #populate the tree object with the #divisions (ndivs), the time (tBirth) and the maximum time (maxt)
   ndrivers=tree$ndrivers
   time=tree$tBirth
@@ -139,6 +140,7 @@ sim_pop=function(tree,
          eventval=as.integer(tree$events$val),
          eventdriverid=as.integer(tree$events$driverid),
          eventts=as.double(tree$events$ts),
+         eventuid=as.integer(tree$events$uid),
          nevents=as.integer(nevents),###
          compartmentval=as.integer(compartment$val),
          compartmentrate=as.double(compartment$rate),
@@ -163,6 +165,7 @@ sim_pop=function(tree,
          eventvalOut=integer(nevents),
          eventdriverOut=integer(nevents),
          eventtsOut=double(nevents),
+         eventuidOut=integer(nevents),
          eventnodeOut=integer(nevents),
          neventOut=integer(1),
          eventTimestampOut=double(MAX_EVENTS),
@@ -177,7 +180,10 @@ sim_pop=function(tree,
   }
   nedge=res$nedgeOut
   cfg$info$population=res$nCompPops
+  # print(neventOut)
+  # print(eventuidOut)
   ##nEventsCount=res$nEventsCount
+  # print(paste0('nEventsCount=',res$nEventsCount))
   res=list(edge=matrix(res$edgesOut,ncol=2)[1:nedge,],
            edge.length=res$nDivsOut[1:nedge],
            state=res$stateOut[1:nedge],
@@ -194,10 +200,12 @@ sim_pop=function(tree,
            params=params,
            events=data.frame(value=res$eventvalOut[1:res$neventOut],
                              driverid=res$eventdriverOut[1:res$neventOut],
-                             node=res$eventnodeOut[1:res$neventOut]
-                             ,ts=res$eventtsOut[1:res$neventOut]),
+                             node=res$eventnodeOut[1:res$neventOut],
+                             ts=res$eventtsOut[1:res$neventOut],
+                             uid=res$eventuidOut[1:res$neventOut]),
            cfg=cfg,
-           status=res$status
+           status=res$status,
+           currentEventUID=max(res$eventuidOut[1:res$neventOut])
   )
   
   class(res)="simpop"
@@ -320,6 +328,7 @@ C_subsample_pop=function(tree,tips){
          eventval=as.integer(tree$events$val),
          eventdriverid=as.integer(tree$events$driverid),
          eventts=as.double(tree$events$ts),
+         eventuid=as.integer(tree$events$uid),
          nevents=as.integer(nevents),
          compartmentval=as.integer(cfg$compartment$val),
          compartmentrate=as.double(cfg$compartment$rate),
@@ -343,6 +352,7 @@ C_subsample_pop=function(tree,tips){
          eventtsOut=double(nevents),
          eventvalOut=integer(nevents),
          eventdriveridOut=integer(nevents),
+         eventuidOut=integer(nevents),
          eventnodeOut=integer(nevents),
          neventOut=integer(1),
          ntipsOut=integer(1),
@@ -373,9 +383,11 @@ C_subsample_pop=function(tree,tips){
            params=tree$params,
            events=data.frame(value=res$eventvalOut[1:res$neventOut],
                              driverid=res$eventdriveridOut[1:res$neventOut],
-                             node=res$eventnodeOut[1:res$neventOut]
-                             ,ts=res$eventtsOut[1:res$neventOut]),
-           cfg=cfg
+                             node=res$eventnodeOut[1:res$neventOut],
+                             ts=res$eventtsOut[1:res$neventOut],
+                             uid=res$eventuidOut[1:res$neventOut]),
+           cfg=cfg,
+           currentEventUID=max(res$eventuidOut[1:res$neventOut])
            
   )
 }
@@ -432,12 +444,13 @@ assign_celltype=function(tree, celltype, driverid, cfg=tree$cfg)
   tree$cfg=cfg
   ###browser()
   
-  newevents=data.frame(value=celltype[idx],driverid=driverid[idx],node=idx,ts=rep(tree$maxt,length(idx)))
+  newevents=data.frame(value=celltype[idx],driverid=driverid[idx],node=idx,ts=rep(tree$maxt,length(idx)),uid=((1:length(idx))+tree$currentEventUID))  #(1:length(idx)+tree$currentEventUID)
   tree$events=rbind(tree$events,newevents)
   idx=which(!is.na(celltype))
   tree$state[match(idx,tree$edge[,2])]=celltype[idx]
   ##Following can be deleted
   tree$driverid[match(idx,tree$edge[,2])]=driverid[idx]
+  tree$currentEventUID=max(tree$event$uid)
   tree
 }
 

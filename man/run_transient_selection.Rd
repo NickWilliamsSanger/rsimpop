@@ -56,8 +56,11 @@ run_transient_selection(
 simpop object.
 }
 \description{
-The driver is subject to stochastic extinction and so is repeatedly dropped in until it "takes".
-The prevailing state when the driver is introduced is saved and reinstated with each attempted introduction.
+run_transient_selection models the evolution of a population of cells with a transient selective advantage given to a randomly
+chosen cell, once the population size reaches the specified equilibrium size.
+}
+\details{
+This function is similar to the run_selection_sim() function. However, the driver is switch off after the time specified in the nyears_transient_end argument.
 }
 \examples{
 tselsim=run_transient_selection(0.05,1/365,target_pop_size = 5e4,nyears_driver_acquisition=15,

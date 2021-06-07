@@ -20,12 +20,12 @@ extern "C" {
  */
 
 void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cellCompartments,
-		int * eventnode,double * eventts,int * eventval,int * eventdriverid,
+		int * eventnode,double * eventts,int * eventval,int * eventdriverid,int * eventuid,
 		int * nevents,int * compinfoval,double * compinfofitness,
 		int * ncomp,int* compartmentsize,double * compartmentrate,
 		int * compartmentval,int * ncompartment,int * driverid){
 	for(int i=0;i<*nevents;i++){
-		events.push_back(Event(eventnode[i],eventts[i],eventval[i],eventdriverid[i]));
+		events.push_back(Event(eventnode[i],eventts[i],eventval[i],eventdriverid[i],eventuid[i]));
 	}
 	std::map<int, vector<std::pair<double,int>>> fitnessByCompartment;
 	for(int i=0;i<*ncomp;i++){
@@ -41,6 +41,7 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 	//printf("collected fitness\n");
 	for(int i=0;i<*ncompartment;i++){
 		//printf("comp: %d %d %d\n",compartmentval[i],i,*ncompartment);
+		//cout << "compartment " << i << " = " << compartmentval[i] << endl;
 		if(compartmentval[i]!=i){
 			printf("Should be contiguous %d %d\n",compartmentval[i],i);
 			throw "compartment should have contiguous ordered value 0..n";
@@ -57,13 +58,14 @@ void setSimData(vector<Event> & events,vector<shared_ptr<CellCompartment>> & cel
 	//printf("initialiased cellcomps\n");
 }
 
-void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventvalOut,int * eventdriveridOut,double * eventtsOut,int * eventnodeOut){
+void populateEvents(const vector<Event> & eventsOut,int * neventOut,int * eventvalOut,int * eventdriveridOut,double * eventtsOut,int * eventuidOut,int * eventnodeOut){
 	int k=0;
 	*neventOut=eventsOut.size();
 	for(const Event & evento : eventsOut){
 				eventvalOut[k]=evento.value;
 				eventdriveridOut[k]=evento.driverid;
 				eventtsOut[k]=evento.timeStamp;
+				eventuidOut[k]=evento.uid;
 				eventnodeOut[k++]=evento.node;
 	}
 }
@@ -96,6 +98,7 @@ void sim_pop2(
 		int * eventval,
 		int * eventdriverid,
 		double * eventts,
+		int * eventuid,
 		int * nevents,
 		int * compartmentval,
 		double *  compartmentrate,
@@ -120,6 +123,7 @@ void sim_pop2(
 		int * eventvalOut,
 		int * eventdriveridOut,
 		double * eventtsOut,
+		int * eventuidOut,
 		int * eventnodeOut,
 		int * neventOut,
 		double * timestampOut,
@@ -144,7 +148,7 @@ void sim_pop2(
 		}
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
-		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
+		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,eventuid,nevents,compinfoval,compinfofitness,
 				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		//printf("allocating cellSim\n");
 
@@ -158,13 +162,20 @@ void sim_pop2(
 				startTime,
 				driverAcquisitionRate);
 		//Add in Events.
+		//printf("Entree 1\n");
 		*status=sim.run((double) n_days,(bool) b_stop_at_pop_size, (bool) b_stop_if_empty);
+		//printf("Entree 2\n");
 		sim.snap();
+		//printf("Entree 3\n");
 		vector<Event> eventsOut;
 		sim.populate_edge_info(edgesOut,nDivsOut,statusOut,driverIDOut,tBirthOut,*max_size,nedgeOut,nInternalNodeOut,ntipsOut,eventsOut);
-		populateEvents(eventsOut,neventOut,eventvalOut,eventdriveridOut,eventtsOut,eventnodeOut);
+		//printf("Entree 4\n");
+		populateEvents(eventsOut,neventOut,eventvalOut,eventdriveridOut,eventtsOut,eventuidOut,eventnodeOut);
+		//printf("Entree 5\n");
 		populateCompartmentInfo(sim,*ncomp,nCompPop);
+		//printf("Entree 6\n");
 		auto popTrace=sim.getPopulationTrace();
+		//cout << "popTrace size = " << popTrace.size() << endl;
 
 		int k=0;
 		for(tuple<double,int,int> timepoint : popTrace){
@@ -173,6 +184,7 @@ void sim_pop2(
 			nDriverOut[k++]=std::get<2>(timepoint);//
 		}
 		*nEventsCount=popTrace.size();
+		//cout << "number of event count = " << *nEventsCount << endl;
 		//printf("status=%d\n",*status);
 		//*status=0;
 
@@ -184,6 +196,7 @@ void sim_pop2(
 		printf("%s\n",ex.what());
 		*status=-1;
 	}
+	//printf("Entree 7\n");
 
 }
 
@@ -199,6 +212,7 @@ void sub_sample(int * edges,
 		int * eventval,
 		int * eventdriverid,
 		double * eventts,
+		int * eventuid,
 		int * nevents,
 		int * compartmentval,
 		double *  compartmentrate,
@@ -216,12 +230,14 @@ void sub_sample(int * edges,
 		int * nDivsOut,
 		int * stateOut,
 		int * driverIDOut,
+		//int * uidOut,
 		double * tBirthOut,
 		int * nedgeOut,
 		int * nInternalNodeOut,
 		double * eventtsOut,
 		int * eventvalOut,
 		int * eventdriveridOut,
+		int * eventuidOut,
 		int * eventnodeOut,
 		int * neventOut,
 		int * ntipsOut,
@@ -233,7 +249,7 @@ void sub_sample(int * edges,
 		///RandomNumberGenerator::createInstance(1234567);
 		vector<Event> events;
 		vector<shared_ptr<CellCompartment>> cellCompartments;
-		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,nevents,compinfoval,compinfofitness,
+		setSimData(events,cellCompartments,eventnode,eventts,eventval,eventdriverid,eventuid,nevents,compinfoval,compinfofitness,
 				ncomp,compartmentsize,compartmentrate,compartmentval,ncompartment,driverid);
 		printf("Specifying %d tips to keep!\n",*nsubtips);
 		std::set<int> tipsToDelete;
@@ -259,7 +275,7 @@ void sub_sample(int * edges,
 		sim.deleteTips(tipsToDelete);
 		vector<Event> eventsOut;
 		sim.populate_edge_info(edgesOut,nDivsOut,stateOut,driverIDOut,tBirthOut,*max_size,nedgeOut,nInternalNodeOut,ntipsOut,eventsOut);
-		populateEvents(eventsOut,neventOut,eventvalOut,eventdriveridOut,eventtsOut,eventnodeOut);
+		populateEvents(eventsOut,neventOut,eventvalOut,eventdriveridOut,eventtsOut,eventuidOut,eventnodeOut);
 		populateCompartmentInfo(sim,*ncomp,nCompPop);
 		*status=0;
 	} catch (const char* msg) {
