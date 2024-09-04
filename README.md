@@ -6,6 +6,11 @@ rsimpop
 
 <!-- badges: start -->
 <!-- badges: end -->
+# This version is now no longer supported
+Please use https://github.com/nangalialab/rsimpop
+
+
+
 Installation
 ------------
 
